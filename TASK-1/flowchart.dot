@@ -4,42 +4,52 @@ digraph G {
     kart [shape=rectangle label="Kartı ATM'ye tak." style="filled", fillcolor=crimson, fontcolor=white]
     islem [shape=diamond label="Para çekme işlemimi?"style="filled", fillcolor="#ccc900", fontcolor=white]
     baskaislem [shape=rectangle label="Belirtilen işlemi yap." style="filled", fillcolor=crimson, fontcolor=white]
-    sifre [shape=parallelogram label="Kart şifresini gir. (deneme = 1)" style="filled", fillcolor="#33cf86", fontcolor=white]
+    deneme [shape=rectangle label="deneme = 1" style="filled", fillcolor=crimson, fontcolor=white]
+    sifre [shape=parallelogram label="Kart şifresini gir." style="filled", fillcolor="#33cf86", fontcolor=white]
     sifreyanlis [shape=diamond label="Şifreyi 3 defa hatalımı girdi. (deneme == 3)" style="filled", fillcolor="#ccc900", fontcolor=white]
     sifreyanlisbloke [shape=rectangle label="Kart Bloke edilir" style="filled", fillcolor=crimson, fontcolor=white]
     sifreyanlishakkivar[shape=rectangle label="Tekrar şifre gir. (deneme += 1)" style="filled", fillcolor=crimson, fontcolor=white]
     sifredogru [shape=rectangle label="Bakiye sorgula" style="filled", fillcolor=crimson, fontcolor=white]
     tutar [shape=parallelogram label="Tutar gir." style="filled", fillcolor="#33cf86", fontcolor=white]
     bakiyekontrol [shape=diamond label="Bakiye yeterlimi?" style="filled", fillcolor="#ccc900", fontcolor=white]
-    bakiyeyeterli [shape=diamond label="tutar / 20 = 0?" style="filled", fillcolor="#ccc900", fontcolor=white]
+    bakiyeyeterli [shape=diamond label="tutar % 20 = 0?" style="filled", fillcolor="#ccc900", fontcolor=white]
+    tutargecerli [shape=diamond label="tutar = 0?" style="filled", fillcolor="#ccc900", fontcolor=white]
     yirmininkati [shape=diamond label="Günlük Limit Yeterlimi?" style="filled", fillcolor="#ccc900", fontcolor=white]
     limityeterli [shape=rectangle label="Para çek ve fiş çıkar"style="filled", fillcolor=crimson, fontcolor=white]
+    limityeterli2 [shape=rectangle label="Para çek ve fiş verme"style="filled", fillcolor=crimson, fontcolor=white]
     baskabirislem [shape=diamond label="Başka bir işlem yapmak istermisiniz?" style="filled", fillcolor="#ccc900", fontcolor=white]
     kartiade [shape=rectangle label="Kart iade."style="filled", fillcolor=crimson, fontcolor=white]
     Bitir [shape= oval style="filled", fillcolor=blueviolet, fontcolor=white]
-
+    yeterliparavarmi [shape=diamond, label="ATM'de yeterli para varmı?" style="filled", fillcolor="#ccc900", fontcolor=white]
+    fisvarmi [shape=diamond label="ATM'de fiş varmı?" style="filled", fillcolor="#ccc900", fontcolor=white]
 
     start -> kart;
-    kart -> islem
+    kart -> sifre
     islem -> baskaislem [label="Hayır."]
-    islem -> sifre [label="Evet."]
+    islem -> sifredogru [label="Evet"]
+    deneme -> sifre
     sifre -> sifreyanlis [label="Yanlış"]
     sifreyanlis -> sifreyanlisbloke [label="Evet"]
     sifreyanlis -> sifreyanlishakkivar [label="Hayır"]
     sifreyanlishakkivar -> sifre
-    sifre -> sifredogru [label="Doğru"]
-    sifredogru -> tutar -> bakiyekontrol
+    sifre -> islem [label="Doğru"]
+    sifredogru -> tutar -> tutargecerli
+    tutargecerli -> bakiyekontrol [label="Hayır"]
+    tutargecerli -> tutar [label="Evet"]
     bakiyekontrol -> baskabirislem [label="Hayır"]
     bakiyekontrol -> bakiyeyeterli [label="Evet"]
     bakiyeyeterli -> tutar [label="Hayır"]
     bakiyeyeterli -> yirmininkati [label="Evet"]
-    yirmininkati -> limityeterli [label="Evet"]
+    yirmininkati -> yeterliparavarmi [label="Evet"]
+    yeterliparavarmi -> baskabirislem [label="Hayır"]
+    yeterliparavarmi -> fisvarmi [label="Evet"]
+    fisvarmi -> limityeterli [label="Evet"]
+    fisvarmi -> limityeterli2 [label="Hayır"]
+    limityeterli2 -> baskabirislem
     yirmininkati -> baskabirislem [label="Hayır."]
     limityeterli -> baskabirislem
-    baskabirislem -> islem [label="Evet"]
     baskabirislem -> kartiade [label="Hayır."]
     baskaislem -> baskabirislem
-    baskabirislem -> islem [label="Evet"]
     kartiade -> Bitir 
     sifreyanlisbloke -> Bitir
 }

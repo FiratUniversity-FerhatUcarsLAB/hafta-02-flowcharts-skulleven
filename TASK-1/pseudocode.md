@@ -19,8 +19,10 @@ EĞER islem == para_cekme İSE
         EĞER tutar / 20 == 0 İSE
             yirmininkati = true
             EĞER tutar <= limit İSE
-                VER tutar
-                VER fiş
+                EĞER tutar <= atm_deki_para İSE
+                    EĞER atm_deki_fis > 0 İSE
+                        VER FİŞ
+                    VER tutar
     EĞER yeterlibakiye YADA yirmininkati == false iSE
         ÇIK
 DEĞİLSE
