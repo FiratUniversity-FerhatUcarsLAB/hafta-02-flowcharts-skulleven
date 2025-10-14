@@ -39,5 +39,7 @@ digraph G {
     baskabirislem -> islem [label="Evet"]
     baskabirislem -> kartiade [label="Hayır."]
     baskaislem -> baskabirislem
+    baskabirislem -> islem [label="Evet"]
     kartiade -> Bitir 
+    sifreyanlisbloke -> Bitir
 }
