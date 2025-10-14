@@ -1,0 +1,89 @@
+- (Soru)
+    digraph G {
+        rankdir=TB;
+        start [shape=oval, label="BAŞLA" style="filled", fillcolor=blueviolet, fontcolor=white];
+        kart [shape=rectangle label="Kartı ATM'ye tak." style="filled", fillcolor=crimson, fontcolor=white]
+        islem [shape=diamond label="Para çekme işlemimi?"style="filled", fillcolor="#ccc900", fontcolor=white]
+        baskaislem [shape=rectangle label="Belirtilen işlemi yap." style="filled", fillcolor=crimson, fontcolor=white]
+        sifre [shape=parallelogram label="Kart şifresini gir. (deneme = 1)" style="filled", fillcolor="#33cf86", fontcolor=white]
+        sifreyanlis [shape=diamond label="Şifreyi 3 defa hatalımı girdi. (deneme == 3)" style="filled", fillcolor="#ccc900", fontcolor=white]
+        sifreyanlisbloke [shape=rectangle label="Kart Bloke edilir" style="filled", fillcolor=crimson, fontcolor=white]
+        sifreyanlishakkivar[shape=rectangle label="Tekrar şifre gir. (deneme += 1)" style="filled", fillcolor=crimson, fontcolor=white]
+        sifredogru [shape=rectangle label="Bakiye sorgula" style="filled", fillcolor=crimson, fontcolor=white]
+        tutar [shape=parallelogram label="Tutar gir." style="filled", fillcolor="#33cf86", fontcolor=white]
+        bakiyekontrol [shape=diamond label="Bakiye yeterlimi?" style="filled", fillcolor="#ccc900", fontcolor=white]
+        bakiyeyeterli [shape=diamond label="tutar / 20 = 0?" style="filled", fillcolor="#ccc900", fontcolor=white]
+        yirmininkati [shape=diamond label="Günlük Limit Yeterlimi?" style="filled", fillcolor="#ccc900", fontcolor=white]
+        limityeterli [shape=rectangle label="Para çek ve fiş çıkar"style="filled", fillcolor=crimson, fontcolor=white]
+        baskabirislem [shape=diamond label="Başka bir işlem yapmak istermisiniz?" style="filled", fillcolor="#ccc900", fontcolor=white]
+        kartiade [shape=rectangle label="Kart iade."style="filled", fillcolor=crimson, fontcolor=white]
+        Bitir [shape= oval style="filled", fillcolor=blueviolet, fontcolor=white]
+
+
+        start -> kart;
+        kart -> islem
+        islem -> baskaislem [label="Hayır."]
+        islem -> sifre [label="Evet."]
+        sifre -> sifreyanlis [label="Yanlış"]
+        sifreyanlis -> sifreyanlisbloke [label="Evet"]
+        sifreyanlis -> sifreyanlishakkivar [label="Hayır"]
+        sifreyanlishakkivar -> sifre
+        sifre -> sifredogru [label="Doğru"]
+        sifredogru -> tutar -> bakiyekontrol
+        bakiyekontrol -> baskabirislem [label="Hayır"]
+        bakiyekontrol -> bakiyeyeterli [label="Evet"]
+        bakiyeyeterli -> tutar [label="Hayır"]
+        bakiyeyeterli -> yirmininkati [label="Evet"]
+        yirmininkati -> limityeterli [label="Evet"]
+        yirmininkati -> baskabirislem [label="Hayır."]
+        limityeterli -> baskabirislem
+        baskabirislem -> islem [label="Evet"]
+        baskabirislem -> kartiade [label="Hayır."]
+        baskaislem -> baskabirislem
+        baskabirislem -> islem [label="Evet"]
+        kartiade -> Bitir 
+        sifreyanlisbloke -> Bitir
+    }
+
+    bu flowcharttaki edge caselere bakabilirmisin
+
+-(Cevap)
+    Harika bir akış şeması (flowchart) hazırlamışsınız. Bir ATM'nin para çekme sürecini oldukça detaylı bir şekilde modelliyor. İstenildiği gibi, bu akış şemasındaki potansiyel "edge case"leri, yani istisnai durumları, zayıf noktaları ve gözden kaçabilecek senaryoları aşağıda inceleyelim:
+
+    ### 1. Şifre Deneme Sayacı Mantığı
+    * **Sıfırlanma Riski:** `sifre` kutusunda `(deneme = 1)` ifadesi yer alıyor. Eğer kullanıcı şifresini yanlış girip `sifreyanlishakkivar` adımı üzerinden `sifre` kutusuna geri döndüğünde `deneme` değişkeni her seferinde yeniden `1` olarak ayarlanırsa, **kullanıcının sonsuz deneme hakkı olur**. Bu durumda `deneme == 3` koşulu hiçbir zaman sağlanmaz ve kart bloke edilemez.
+    * **Öneri:** `deneme` sayacı, kart takıldığı anda bir defa sıfırlanmalı ve şifre girme döngüsü içinde tekrar sıfırlanmamalıdır.
+
+    ### 2. Tutar Girişi (Tutar) ve Doğrulama Adımları
+    * **Negatif veya Sıfır Değer Girişi:** Akış şeması, kullanıcının `0` veya negatif bir tutar girmesi durumunu ele almıyor.
+        * Eğer kullanıcı `0` girerse, `Bakiye yeterlimi?` kontrolünden geçer. `tutar / 20 = 0?` kontrolü de (eğer bu `tutar % 20 == 0` anlamına geliyorsa) `0 % 20 == 0` olduğu için geçer. `Günlük Limit Yeterlimi?` kontrolü de muhtemelen geçer. ATM'nin `0 TL` vermeye çalışması beklenmedik bir duruma yol açabilir.
+    * **Hatalı Giriş Geri Bildirimi Yok:**
+        * Kullanıcı bakiyesi yetersiz olduğunda (`bakiyekontrol -> Hayır`), akış doğrudan "Başka bir işlem yapmak istermisiniz?" sorusuna gidiyor. Kullanıcıya **neden** işlemin iptal edildiği (`"Bakiyeniz yetersiz."`) söylenmiyor.
+        * Benzer şekilde, günlük limit aşıldığında (`yirmininkati -> Hayır`), kullanıcıya **neden** devam edemediği (`"Günlük para çekme limitinizi aştınız."`) bilgisi verilmiyor.
+        * Kullanıcı 20'nin katı olmayan bir tutar girdiğinde (`bakiyeyeterli -> Hayır`), tekrar `Tutar gir.` adımına yönlendiriliyor. Ancak kullanıcıya **neden** geri yönlendirildiği (`"Lütfen 20 TL ve katları bir tutar giriniz."`) söylenmediği için aynı hatayı tekrar yapabilir ve bir döngüye girebilir.
+
+    ### 3. Mantıksal Hata Riski
+    * **`tutar / 20 = 0?` İfadesi:** `bakiyeyeterli` kutusundaki bu ifade büyük ihtimalle "tutarın 20'ye bölümünden kalan 0 mı?" (`tutar % 20 == 0`) anlamında kullanılmıştır. Ancak yazıldığı gibi yorumlanırsa, bu, tam sayı bölmesinde "tutar 20'den küçük mü?" anlamına gelir. Bu, amaçlanan mantıkla çelişir ve hatalı bir kodlamaya yol açabilir.
+
+    ### 4. Güvenlik Zafiyeti
+    * **Şifresiz İşlem Erişimi:** En kritik zafiyetlerden biri buradadır.
+        * Kullanıcı kartı taktıktan sonra `islem` ("Para çekme işlemimi?") sorusuna "Hayır" cevabını verirse, akış `baskaislem` ("Belirtilen işlemi yap.") adımına **şifre sormadan** ilerliyor. Bu, kartı bulan herhangi bir kişinin, para çekme dışındaki (bakiye sorgulama, havale vb.) tüm işlemleri şifresiz yapabileceği anlamına gelir.
+        * **Olması Gereken Akış:** Şifre kontrolü (`sifre` adımı), tüm işlemlerden önce, yani `islem` adımından önce yapılmalıdır.
+
+    ### 5. Sistemsel ve Donanımsal Edge Case'ler
+    Bu akış şeması yazılım mantığına odaklanmıştır ancak gerçek bir ATM'de donanımsal ve sistemsel istisnalar da olabilir:
+    * **ATM'de Yeterli Para Olmaması:** Kullanıcının bakiyesi ve limiti yeterli olsa bile, ATM'nin kasasında istenen miktarda para olmayabilir. Bu durum şemada ele alınmamıştır.
+    * **Fiş Kağıdının Bitmesi:** `limityeterli` adımında "fiş çıkar" deniyor. Eğer fiş kağıdı bittiyse ne olmalı? İşlem devam etmeli mi, kullanıcıya bilgi verilmeli mi?
+    * **Elektrik Kesintisi / Ağ Hatası:** İşlemin herhangi bir anında (özellikle para çekme komutu verildikten sonra ama para henüz verilmeden) yaşanacak bir ağ hatası veya elektrik kesintisi ne gibi sonuçlar doğurur? Paranın hesaptan düşüp müşteriye teslim edilmemesi gibi durumlar için bir kontrol mekanizması gerekir.
+    * **Kartın Geri Verilememesi:** `kartiade` adımında ATM'nin kartı sıkıştırması ve geri verememesi durumu da bir edge case'dir.
+
+    ### Özet Tablo
+
+    | Kategori | Edge Case / Sorun | Potansiyel Sonuç | Öneri |
+    | :--- | :--- | :--- | :--- |
+    | **Güvenlik** | Şifre sormadan diğer işlemlere izin verilmesi. | Yetkisiz hesap erişimi. | Şifre kontrolü, tüm işlemlerden önce yapılmalıdır. |
+    | **Mantık & Döngü** | Şifre deneme sayacının döngüde sıfırlanma riski. | Sonsuz şifre deneme hakkı. | Sayaç, kart takıldığında sadece bir kez başlatılmalıdır. |
+    | **Kullanıcı Deneyimi**| Hata mesajlarının eksikliği (Bakiye/Limit yetersiz vb.).| Kullanıcı işlemin neden başarısız olduğunu anlamaz, döngüye girer.| Her ret kararından sonra kullanıcıya açıklayıcı bir mesaj gösterilmelidir. |
+    | **Giriş Doğrulama** | Negatif veya sıfır tutar girilmesi durumu. | ATM'nin 0 TL vermeye çalışması gibi beklenmedik davranışlar.| Tutar girişinde > 0 kontrolü eklenmelidir. |
+    | **Donanım/Sistem** | ATM'de nakit veya fiş kağıdı kalmaması. | İşlemin tamamlanamaması, müşteri memnuniyetsizliği.| Donanım durum kontrolleri ve ilgili hata mesajları eklenmelidir. |
+    | **Netlik** | `tutar / 20 = 0?` gibi belirsiz ifadeler. | Yanlış kodlama ve hatalı çalışma. | Mantıksal ifadeler net olmalıdır (`tutar % 20 == 0`). |
