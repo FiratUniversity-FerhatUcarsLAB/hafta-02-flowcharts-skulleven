@@ -1,0 +1,116 @@
+-(Soru) 
+    digraph G{
+        start [label="Başla" shape=oval]
+        tc_kimlik_no_al[label="TC Kimlik Numaranızı girin", shape=rectangle]
+        hangi_islem [label="Hangi işlemi yapmak istersiniz?", shape=diamond]
+        Bitir [label="Bitir", shape=oval]
+        
+        start -> tc_kimlik_no_al -> hangi_islem
+        hangi_islem -> poliklinikleri_goster [label="Randevu"]
+        hangi_islem -> tahlilleri_goster [label="Tahlil"]
+        subgraph randevu {
+            poliklinikleri_goster [label="Poliklinikleri sunucudan al ve göster", shape=rectangle]
+            doktorlari_goster [label="Seçilen Poliklinikteki doktorları al ve göster", shape=rectangle]
+            uygun_doktor [label="Uygun doktor varmı", shape=diamond]
+            uygun_doktor_yok [label="Uygun doktor bulunamadı", shape=rectangle]
+            uygun_saatler [label="Seçilen doktorun uygun saati varmı?", shape=diamond]
+            uygun_saatleri_goster [label="Doktorun uygun saatlerini sunucudan al ve göster", shape=rectangle]
+            uygun_saat_yok [label="Doktorun uygun saati yok", shape=rectangle]
+            poliklinik_sectimi [label="Poliklinik seçtimi?" shape=diamond]
+            doktor_sectimi [label="Doktor seçtimi?" shape=diamond]
+            saat_sectimi [label="Saat seçtimi?" shape=diamond]
+            randevu_dogrula [label="Randevu doğrula", shape=rectangle]
+            sms_gonder [label="Doğrulama SMS'i gönder", shape=rectangle]
+            baska_islem [label="Başka bir işlem yapmak istermisiniz?", shape=diamond]
+            
+            poliklinikleri_goster -> poliklinik_sectimi
+            poliklinik_sectimi -> poliklinikleri_goster [label="Hayır"]
+            poliklinik_sectimi -> uygun_doktor [label="Evet"]
+            uygun_doktor -> uygun_doktor_yok [label="Hayır"]
+            uygun_doktor_yok -> poliklinikleri_goster
+            uygun_doktor -> doktorlari_goster [label="Evet"]
+            doktorlari_goster -> doktor_sectimi
+            doktor_sectimi -> doktorlari_goster [label="Hayır"]
+            doktor_sectimi -> uygun_saatler [label="Evet"]
+            uygun_saatler -> uygun_saatleri_goster [label="Evet"]
+            uygun_saatler -> uygun_saat_yok [label="Hayır"]
+            uygun_saat_yok -> doktorlari_goster
+            uygun_saatleri_goster -> saat_sectimi
+            saat_sectimi -> uygun_saatleri_goster [label="Hayır"]
+            saat_sectimi -> randevu_dogrula [label="Evet"]
+            randevu_dogrula -> sms_gonder
+            sms_gonder -> baska_islem
+            baska_islem -> hangi_islem [label="Evet"]
+            baska_islem -> Bitir [label="Hayır"]
+        }
+        subgraph tahlil{
+            tahlilleri_goster [label="Tahlilleri sunucudan al ve göster", shape=rectangle]
+            tahlil_sectimi [label="Tahlil seçtimi?", shape=diamond]
+            tahlil_hazirmi [label="Seçilen tahlil hazırmı?", shape=diamond]
+            pdf_indirmek_istiyormu [label="PDF'i indirmek istermisiniz", shape=diamond]
+            tahlil_hazir_degil [label="Seçilen tahlil hazır değil", shape=rectangle]
+            pdf_indir [label="PDF'i indir", shape=rectangle]
+            baska_islem2 [label="Başka bir işlem yapmak istermisiniz", shape=diamond]
+            
+            tahlilleri_goster -> tahlil_sectimi
+            tahlil_sectimi -> hangi_islem [label="Hayır"]
+            tahlil_sectimi -> tahlil_hazirmi [label="Evet"]
+            tahlil_hazirmi -> tahlil_hazir_degil [label="Hayır"]
+            tahlil_hazir_degil -> tahlilleri_goster
+            tahlil_hazirmi -> pdf_indirmek_istiyormu [label="Evet"]
+            pdf_indirmek_istiyormu -> pdf_indir [label="Evet"]
+            pdf_indirmek_istiyormu -> baska_islem2 [label="Hayır"]
+            pdf_indir -> baska_islem2
+            baska_islem2 -> hangi_islem [label="Evet"]
+            baska_islem2 -> Bitir [label="Hayır"]
+        }
+    }
+
+    bu flowcharttaki edgecaseleri gösterirmisin
+
+-(Cevap)
+    Harika bir akış şeması (flowchart). Bu şema, bir hastane randevu ve tahlil görüntüleme sisteminin temel mantığını çok net bir şekilde ortaya koyuyor. İstenen "edge case"ler, yani sistemin normal akışının dışında kalabilecek, beklenmedik veya istisnai durumlar aşağıda adımlar halinde incelenmiştir.
+
+    ### Genel Edge Case'ler (Tüm Akışı Etkileyen)
+
+    1.  **Sunucu Bağlantı Hataları:**
+        * `poliklinikleri_goster`, `doktorlari_goster`, `uygun_saatleri_goster`, `tahlilleri_goster` gibi tüm "sunucudan al" adımlarında internet bağlantısı kesilirse veya sunucu yanıt vermezse ne olur? Akış şeması bu hata durumlarını (error handling) göstermiyor. Sistem kilitlenir mi, kullanıcıya bir hata mesajı gösterilip bir önceki adıma mı dönülür?
+    2.  **Kullanıcı Kimlik Doğrulama Sorunları:**
+        * **Geçersiz TC Kimlik No:** `tc_kimlik_no_al` adımında kullanıcı 11 haneden az/fazla, harf içeren veya algoritması yanlış bir TC Kimlik No girerse ne olur? Şema, bu numaranın doğrulanıp döngüye girdiğini göstermiyor, direkt bir sonraki adıma geçiyor.
+        * **Kayıtlı Olmayan Kullanıcı:** Girilen TC Kimlik No geçerli formatta olsa bile hastane sisteminde kayıtlı değilse ne olacak? Akışta bu kontrol bulunmuyor.
+    3.  **Zaman Aşımı (Timeout):**
+        * Kullanıcı herhangi bir seçim ekranında (`hangi_islem`, `poliklinik_sectimi`, `doktor_sectimi` vb.) çok uzun süre beklerse oturum sonlandırılacak mı? Bu durum şemada belirtilmemiş.
+
+    ---
+
+    ### Randevu Al (`randevu`) Alt Akışındaki Edge Case'ler
+
+    1.  **Veri Tutarlılığı ve Eşzamanlılık Sorunları:**
+        * **Dolu Randevu Saatleri:** Kullanıcı `uygun_saatleri_goster` adımında bir saat gördüğü anda, başka bir kullanıcı o saati alabilir (Race Condition). Kullanıcı saat seçip `randevu_dogrula` adımına geldiğinde, seçtiği saatin artık uygun olmadığı durumu nasıl yönetilecek? Şema, bu durumda bir hata mesajı verip saat seçimine geri dönülmesini göstermiyor.
+        * **Anlık Değişiklikler:** Kullanıcı poliklinik seçtikten sonra, o poliklinikteki tek uygun doktorun randevuları dolarsa (`uygun_doktor` adımı geçildikten sonra), `doktorlari_goster` ekranı boş gelebilir veya kullanıcı doktor seçtiği anda doktorun uygun saati kalmayabilir.
+    2.  **Boş Veri Durumları:**
+        * **Uygun Poliklinik Yok:** `poliklinikleri_goster` adımında sunucudan hiç aktif poliklinik bilgisi gelmezse ne olur? Ekrana "Uygun poliklinik bulunamadı" gibi bir mesaj verilmeli mi?
+        * **Doktor İzinli/Atanmamış:** `uygun_doktor -> Hayır` durumu sadece tüm doktorların dolu olması anlamına gelmez. O poliklinikte hiç atanmış doktor olmayabilir veya tüm doktorlar o gün izinli olabilir. Bu durum kullanıcıya doğru bir şekilde açıklanmalıdır.
+    3.  **Harici Servis Hataları:**
+        * **SMS Gönderim Hatası:** `sms_gonder` adımında SMS servis sağlayıcısında bir sorun olursa veya kullanıcının telefon numarası sistemde yanlış kayıtlıysa ne olur? Randevu alınmış sayılacak mı? Kullanıcıya SMS gitmediği bilgisi verilecek mi?
+
+    ---
+
+    ### Tahlil Görüntüle (`tahlil`) Alt Akışındaki Edge Case'ler
+
+    1.  **Veri Durumları ve İçerik:**
+        * **Tahlil Sonucu Henüz Yok:** Sisteme yeni kaydolmuş veya hiç tahlil vermemiş bir kullanıcı `tahlilleri_goster` adımına geldiğinde ne görecek? "Gösterilecek tahlil sonucunuz bulunmamaktadır" gibi bir bilgilendirme mesajı gösterilmeli.
+        * **Tahlil Durumları:** `tahlil_hazirmi` adımı sadece "Evet" veya "Hayır" olarak ikiye ayrılmış. Gerçekte tahlillerin "İnceleniyor", "Onay Bekliyor", "İptal Edildi", "Tekrar Gerekiyor" gibi farklı durumları olabilir. Bu ara durumlar nasıl yönetilecek?
+        * **Çok Sayıda Tahlil:** Bir kullanıcının onlarca tahlil sonucu varsa `tahlilleri_goster` ekranı nasıl bir yapıda olacak? Sayfalama (pagination) veya filtreleme olacak mı?
+    2.  **Dosya İşlemleri:**
+        * **PDF Oluşturma Hatası:** `pdf_indir` adımında, sunucu tarafında PDF oluşturulurken bir hata meydana gelirse ne olur?
+        * **İndirme İzinleri:** Kullanıcının cihazında uygulamaya depolama/dosya yazma izni verilmemişse `pdf_indir` adımı başarısız olur. Bu durum kullanıcıya bildirilmeli.
+        * **PDF Görüntüleyici Yok:** Kullanıcının cihazında PDF dosyalarını açacak bir uygulama yüklü değilse, indirme işlemi başarılı olsa bile kullanıcı sonucu görüntüleyemez.
+
+    ### Akış Mantığı ve Kullanıcı Deneyimiyle İlgili Edge Case'ler
+
+    * **Geri Dönme İşlevi:** Akış şemasında adımlar arasında "geri" gitme seçeneği bulunmuyor. Örneğin, doktor seçtikten sonra polikliniği yanlış seçtiğini fark eden bir kullanıcı ne yapacak?
+    * **Çıkış Yapma:** `hangi_islem` ekranında bir "Bitir" veya "Çıkış" seçeneği yok. Kullanıcı bir işlem seçmek zorunda bırakılıyor. Sadece bir işlemi tamamladıktan sonra çıkış yapabiliyor.
+    * **Döngüye Girme:** `poliklinik_sectimi -> Hayır` seçeneği tekrar `poliklinikleri_goster` adımına yönlendiriyor. Kullanıcı sürekli "Hayır" derse sonsuz bir döngüye girer. Bir iptal veya ana menüye dönme seçeneği daha kullanışlı olurdu. Aynı durum `doktor_sectimi` ve `saat_sectimi` için de geçerlidir.
+
+    Bu edge case'lerin düşünülmesi, geliştirilecek yazılımın daha sağlam, güvenilir ve kullanıcı dostu olmasını sağlar. Flowchart'ınız bu senaryoları içerecek şekilde detaylandırılabilir.
