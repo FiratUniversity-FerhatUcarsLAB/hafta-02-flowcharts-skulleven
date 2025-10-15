@@ -1,0 +1,46 @@
+digraph G{
+    start[label="Başla", shape=oval]
+    sistemi_calistir[label="Sistemi çalıştır", shape=rectangle]
+    sensorleri_oku [label="Sensörleri oku", shape=rectangle]
+    sensorlerde_hareket_varmi[label="Kamera, Hareket sensörü, kapı sensöründe hareket varmı?", shape=diamond]
+    sensordeki_ev_sahibimi[label="Sensördeki ev sahibimi?", shape=diamond]
+    bildirim_gönderildimi[label="Ev sahibine bildirim gönderildimi", shape=diamond]
+    bildirim_gönder[label="Bildirim, E-Posta, SMS Gönder", shape=rectangle]
+    alarm_seviyesi_durumu [label="Alarm seviyesini al", shape=rectangle]
+    alarm_seviyesi_1 [label="Alarm seviyesi 1'den büyük yada eşitmi", shape=diamond]
+    alarm_seviyesi_2 [label="Alarm seviyesi 2'den büyük yada eşitmi", shape=diamond]
+    alarm_seviyesi_3 [label="Alarm seviyesi 3'ten büyük yada eşitmi", shape=diamond]
+    alarm_seviyesi_1_yap [label="Alarm çal", shape=rectangle]
+    alarm_seviyesi_2_yap [label="Girişleri kilitle", shape=rectangle]
+    alarm_seviyesi_3_yap [label="Polisi ara", shape=rectangle]
+    alarm_seviyesini_yukselt [label="Alarm seviyesini 1 yükselt", shape=rectangle]
+    tekrarla [label="Tekrarla (bekle(1 saniye)", shape=rectangle]
+    normal [label="Alarmları çalıyorlarsa sıfırla, alarm_seviyesi = 0, bildirimleri sıfırla", shape=rectangle]
+    test_bildirimi_gönder [label="Ev sahibine bildirim gönder", shape=rectangle]
+    bildirim_cevabi [label="Ev sahibi tanıyormu/Ev sahibimi", shape=diamond]
+    database_ekle [label="Yüz ve bilgileri tanıdık olarak ekle ve bu kişi hakkında gün boyu bildirim atma", shape=rectangle]
+    
+    start -> sistemi_calistir -> sensorleri_oku
+    sensorleri_oku -> sensorlerde_hareket_varmi
+    sensorlerde_hareket_varmi -> sensordeki_ev_sahibimi [label="Evet"]
+    sensordeki_ev_sahibimi -> test_bildirimi_gönder [label="Hayır"]
+    test_bildirimi_gönder -> bildirim_cevabi
+    bildirim_cevabi -> alarm_seviyesini_yukselt [label="Yabancı ya da 60 saniye boyunca cevap vermedi"]
+    bildirim_cevabi -> database_ekle[label="Tanıyor"]
+    database_ekle -> normal
+    alarm_seviyesini_yukselt -> bildirim_gönderildimi
+    bildirim_gönderildimi -> bildirim_gönder [label="Hayır"]
+    bildirim_gönder -> alarm_seviyesi_durumu
+    alarm_seviyesi_durumu -> alarm_seviyesi_1
+    alarm_seviyesi_durumu -> alarm_seviyesi_2
+    alarm_seviyesi_durumu -> alarm_seviyesi_3
+    alarm_seviyesi_1 -> alarm_seviyesi_1_yap [label="Evet"]
+    alarm_seviyesi_2 -> alarm_seviyesi_2_yap [label="Evet"]
+    alarm_seviyesi_3 -> alarm_seviyesi_3_yap [label="Evet"]
+    alarm_seviyesi_1_yap -> tekrarla
+    alarm_seviyesi_2_yap -> tekrarla
+    alarm_seviyesi_3_yap -> tekrarla
+    tekrarla -> sensorleri_oku
+    sensorlerde_hareket_varmi -> normal [label="Hayır"]
+    normal -> tekrarla
+}

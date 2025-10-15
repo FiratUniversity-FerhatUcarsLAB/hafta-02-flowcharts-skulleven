@@ -1,0 +1,319 @@
+-(Soru)
+    Akıllı ev güvenlik sistemi 7/24 çalışır. Ana döngü içinde sensör okuma,tehdit algılama, alarm verme ve bildirim gönderme süreçlerini içeren pseudocode yaz.
+
+-(Cevap)
+    Elbette, 7/24 çalışan bir akıllı ev güvenlik sisteminin ana döngüsünü içeren pseudocode (sözde kod) aşağıda sunulmuştur. Bu kod, programlama dilinden bağımsız olarak bir sistemin çalışma mantığını ve temel adımlarını gösterir.
+
+    -----
+
+    ### Akıllı Ev Güvenlik Sistemi Pseudocode
+
+    Bu pseudocode, sistemin sürekli olarak sensörleri kontrol ettiği, potansiyel bir tehdit algıladığında alarmı devreye soktuğu ve kullanıcıya bildirim gönderdiği bir ana döngüyü tanımlar.
+
+    ```
+    // ==========================================================
+    // AKILLI EV GÜVENLİK SİSTEMİ - PSEUDOCODE
+    // ==========================================================
+
+    BAŞLAT
+
+    // --- SİSTEMİN İLK AYARLARI (INITIALIZATION) ---
+    İŞLEV SistemAyarla():
+        SensörleriEtkinleştir()      // Kapı/pencere sensörleri, hareket dedektörleri, kameralar vb.
+        AlarmSisteminiKur()         // Siren, ışıklar vb.
+        BildirimServisiniBaşlat()   // E-posta, SMS veya mobil uygulama bildirimi için bağlantı kur
+        YAZ "Sistem başlatıldı ve izleme modunda."
+    BİTİR İŞLEV
+
+
+    // --- ANA ÇALIŞMA DÖNGÜSÜ (7/24 ÇALIŞIR) ---
+    ANA_DÖNGÜ (Sonsuz Döngü):
+
+        // 1. ADIM: SENSÖR OKUMA
+        // Tüm bağlı sensörlerden anlık verileri topla.
+        sensor_verileri = SensorleriOku() 
+        // Örnek veri: {kapi_sensoru: "kapali", hareket_sensoru: "hareket_yok", kamera: "normal_goruntu"}
+
+        // 2. ADIM: TEHDİT ALGILAMA
+        // Toplanan sensör verilerini analiz ederek bir anormallik olup olmadığını kontrol et.
+        tehdit_durumu = TehditAlgila(sensor_verileri)
+        // Örnek tehdit: Kapı sensörü "açık" veya hareket sensörü "hareket_var" olarak raporlarsa.
+
+        // 3. ADIM: ALARM VERME VE BİLDİRİM GÖNDERME
+        // Eğer bir tehdit algılandıysa ilgili eylemleri gerçekleştir.
+        EĞER tehdit_durumu == "TEHDİT_ALGILANDI":
+        
+        // 3a. ALARM VERME
+        // Sistem zaten alarm durumunda değilse alarmı tetikle.
+        EĞER AlarmDurumu() == "PASİF":
+            AlarmCal() // Sireni ve ışıkları etkinleştir.
+            YAZ "ALARM! Tehdit algılandı, sirenler ve ışıklar aktive edildi."
+        BİTİR EĞER
+
+        // 3b. BİLDİRİM GÖNDERME
+        // Kullanıcıya daha önce bildirim gönderilmediyse gönder.
+        EĞER BildirimGonderildiMi() == "HAYIR":
+            mesaj = "UYARI: Evinizde bir tehdit algılandı. Algılanan sensör: " + tehdit_durumu.kaynak
+            BildirimGonder(kullanici, mesaj)
+            YAZ "Kullanıcıya bildirim gönderildi."
+        BİTİR EĞER
+
+        DEĞİLSE:
+        // Tehdit yoksa her şeyin normal olduğundan emin ol.
+        // Alarm yanlışlıkla çalıyorsa sustur (isteğe bağlı).
+        // ResetleAlarmVeBildirimDurumu()
+        YAZ "Durum normal, tehdit yok."
+        BİTİR EĞER
+
+        // Sistemin kaynakları aşırı tüketmemesi için kısa bir süre bekle.
+        Bekle(1 saniye) 
+
+    BİTİR ANA_DÖNGÜ
+
+    SON
+
+    // --- YARDIMCI İŞLEVLER (FUNCTIONS) ---
+
+    İŞLEV SensorleriOku():
+    // Tüm sensörlerden veri toplama mantığı burada yer alır.
+    // ...
+    GERİ DÖN toplanan_veriler
+    BİTİR İŞLEV
+
+    İŞLEV TehditAlgila(veriler):
+    // Gelen verileri analiz et. Örneğin:
+    EĞER veriler.kapi_sensoru == "açık" VEYA veriler.hareket_sensoru == "hareket_var":
+        GERİ DÖN "TEHDİT_ALGILANDI"
+    DEĞİLSE:
+        GERİ DÖN "GÜVENLİ"
+    BİTİR EĞER
+    BİTİR İŞLEV
+
+    İŞLEV AlarmCal():
+    // Siren, ışık gibi alarm mekanizmalarını devreye sokar.
+    // ...
+    BİTİR İŞLEV
+
+    İŞLEV BildirimGonder(hedef, mesaj):
+    // Kullanıcının telefonuna veya e-postasına bildirim gönderir.
+    // ...
+    BİTİR İŞLEV
+
+    // Durum kontrol işlevleri
+    İŞLEV AlarmDurumu():
+    // Alarmın o an aktif olup olmadığını döndürür.
+    // ...
+    BİTİR İŞLEV
+
+    İŞLEV BildirimGonderildiMi():
+    // Mevcut tehdit için daha önce bildirim gönderilip gönderilmediğini kontrol eder.
+    // Bu, kullanıcıya sürekli aynı bildirimlerin gitmesini engeller.
+    // ...
+    BİTİR İŞLEV
+    ```
+
+    ### Pseudocode Açıklaması:
+
+    1.  **BAŞLAT:** Programın başlangıç noktasıdır.
+    2.  **SistemAyarla():** Program ilk çalıştığında bir defaya mahsus olmak üzere tüm sensörleri, alarm donanımlarını ve bildirim servislerini kullanıma hazırlar.
+    3.  **ANA\_DÖNGÜ:** Sistemin kalbidir. `Sonsuz Döngü` ifadesi, bu bloğun içindeki kodların program kapatılana kadar sürekli olarak tekrar edeceğini belirtir. Bu, 7/24 çalışmayı sağlar.
+    4.  **SensorleriOku():** Döngünün her adımında ilk olarak tüm sensörlerden (kapı, pencere, hareket, duman vb.) anlık durum bilgisi okunur ve bir değişkende toplanır.
+    5.  **TehditAlgila(sensor\_verileri):** Toplanan veriler bu fonksiyona gönderilir. Fonksiyon, önceden tanımlanmış kurallara göre (örneğin, "kapı izinsiz açıldı mı?" veya "hareket algılandı mı?") bir anormallik olup olmadığını kontrol eder.
+    6.  **EĞER tehdit\_durumu == "TEHDİT\_ALGILANDI":** Eğer `TehditAlgila` fonksiyonu bir anormallik tespit ederse bu blok çalışır.
+        * **AlarmCal():** Siren ve/veya uyarı ışıkları gibi fiziksel alarmları tetikler. Alarmın tekrar tekrar çalmasını önlemek için mevcut durumu kontrol eder.
+        * **BildirimGonder():** Ev sahibine mobil uygulama, SMS veya e-posta yoluyla bir uyarı mesajı gönderir. Yine, spam olmaması için bildirim durumu kontrol edilir.
+    7.  **DEĞİLSE:** Herhangi bir tehdit algılanmazsa, sistem "Durum normal" mesajı vererek döngüye devam eder.
+    8.  **Bekle(1 saniye):** Döngünün her turundan sonra sisteme kısa bir mola verdirilir. Bu, işlemcinin %100 kullanılmasını önler ve sistemi daha stabil hale getirir. Gerçek bir sistemde bu süre milisaniyeler mertebesinde olabilir.
+    9.  **Yardımcı İşlevler:** Ana döngüyü daha okunabilir kılmak için her bir ana görevin (sensör okuma, alarm çalma vb.) ayrı bir fonksiyon olarak tanımlanması iyi bir programlama pratiğidir.
+
+-(Soru)
+    digraph G{
+        start[label="Başla", shape=oval]
+        sistemi_calistir[label="Sistemi çalıştır", shape=rectangle]
+        sensorleri_oku [label="Sensörleri oku", shape=rectangle]
+        sensorlerde_hareket_varmi[label="Kamera, Hareket sensörü, kapı sensöründe hareket varmı (her hareket olan sensörde 1 kez daha aynı kod çalışır.", shape=diamond]
+        sensordeki_ev_sahibimi[label="Sensördeki ev sahibimi?", shape=diamond]
+        bildirim_gönderildimi[label="Ev sahibine bildirim gönderildimi", shape=diamond]
+        bildirim_gönder[label="Bildirim, E-Posta, SMS Gönder", shape=rectangle]
+        alarm_seviyesi_durumu [label="Alarm seviyesini al", shape=rectangle]
+        alarm_seviyesi_1 [label="Alarm seviyesi 1'den büyük yada eşitmi", shape=diamond]
+        alarm_seviyesi_2 [label="Alarm seviyesi 2'den büyük yada eşitmi", shape=diamond]
+        alarm_seviyesi_3 [label="Alarm seviyesi 3'ten büyük yada eşitmi", shape=diamond]
+        alarm_seviyesi_1_yap [label="Alarm çal", shape=rectangle]
+        alarm_seviyesi_2_yap [label="Girişleri kilitle", shape=rectangle]
+        alarm_seviyesi_3_yap [label="Polisi ara", shape=rectangle]
+        alarm_seviyesini_yukselt [label="Alarm seviyesini 1 yükselt", shape=rectangle]
+        tekrarla [label="Tekrarla (alarm_seviyesi = 0) (bekle(1 saniye)", shape=rectangle]
+        normal [label="Alarmları çalıyorlarsa sıfırla, alarm_seviyesi = 0", shape=rectangle]
+        
+        start -> sistemi_calistir -> sensorleri_oku
+        sensorleri_oku -> sensorlerde_hareket_varmi
+        sensorlerde_hareket_varmi -> sensordeki_ev_sahibimi [label="Evet"]
+        sensordeki_ev_sahibimi -> alarm_seviyesini_yukselt[label="Hayır"]
+        alarm_seviyesini_yukselt -> bildirim_gönderildimi
+        bildirim_gönderildimi -> bildirim_gönder [label="Hayır"]
+        bildirim_gönder -> alarm_seviyesi_durumu
+        alarm_seviyesi_durumu -> alarm_seviyesi_1
+        alarm_seviyesi_durumu -> alarm_seviyesi_2
+        alarm_seviyesi_durumu -> alarm_seviyesi_3
+        alarm_seviyesi_1 -> alarm_seviyesi_1_yap [label="Evet"]
+        alarm_seviyesi_2 -> alarm_seviyesi_2_yap [label="Evet"]
+        alarm_seviyesi_3 -> alarm_seviyesi_3_yap [label="Evet"]
+        alarm_seviyesi_1_yap -> tekrarla
+        alarm_seviyesi_2_yap -> tekrarla
+        alarm_seviyesi_3_yap -> tekrarla
+        tekrarla -> sensorleri_oku
+        sensorlerde_hareket_varmi -> normal [label="Hayır"]
+        normal -> tekrarla
+    }
+    bu flowchart için edgecaseleri sıralarmısın
+
+-(Cevap)
+    Harika bir akış şeması! Bu tür bir sistemin güvenilirliği, beklenmedik durumları ne kadar iyi idare ettiğine bağlıdır. Aşağıda, sağladığınız akış şeması (`flowchart`) için potansiyel "edge case"leri (uç durumlar) ve zayıf noktaları sıraladım:
+
+    ### 1. Sensör ve Algılama ile İlgili Uç Durumlar
+
+    * **Hatalı Pozitif (False Positive):** Sistemin en yaygın sorunlarından biridir.
+        * **Evcil Hayvanlar:** Bir kedi veya köpeğin hareketi, bir hırsız gibi algılanabilir.
+        * **Çevresel Faktörler:** Pencereden yansıyan araba farı, rüzgarda sallanan bir ağaç dalı veya uçan bir böcek hareket sensörünü tetikleyebilir.
+        * **Teknik Arıza:** Bir sensörün bozulup sürekli "hareket var" sinyali göndermesi, sistemi sonsuz bir alarm döngüsüne sokabilir.
+    * **Hatalı Negatif (False Negative):**
+        * Bir hırsızın çok yavaş hareket ederek sensörlerin algılama eşiğinin altında kalması.
+        * Sensörün görüş alanının dışında (kör noktada) kalan bir hareketin algılanamaması.
+        * Bir sensörün pilinin bitmesi veya bozulması ve hiç sinyal gönderememesi.
+    * **Eş Zamanlı ve Hızlı Tetiklenmeler:**
+        * Şemadaki "her hareket olan sensörde 1 kez daha aynı kod çalışır" notu kritik bir zayıflığa işaret ediyor. Bir kapı açıldığında hem kapı sensörü hem de kamera aynı anda hareket algılarsa, `alarm_seviyesini_yukselt` komutu iki kez ardı ardına çalışabilir. Bu, alarm seviyesinin bir saniyeden kısa sürede 0'dan 2'ye fırlamasına neden olabilir ve ev sahibine tepki verme şansı tanımaz.
+
+    ### 2. Ev Sahibi Tanımlama ile İlgili Uç Durumlar
+
+    * **Tanımlama Başarısızlığı:**
+        * Yüz tanıma sistemi varsa, ev sahibi şapka/gözlük taktığında veya ortam ışığı yetersiz olduğunda tanınmayabilir.
+        * Sistem telefonun Bluetooth/Wi-Fi sinyaline bağlıysa, ev sahibinin telefonunun şarjı bittiğinde veya telefonu evde unuttuğunda sistem onu yabancı olarak algılar.
+    * **Hatalı Tanımlama:**
+        * Sistemin, ev sahibine benzeyen birini (örneğin bir akrabayı veya fotoğraftaki bir yüzü) yanlışlıkla "ev sahibi" olarak tanıması.
+    * **Misafir Durumu:**
+        * Ev sahibi bir misafirle birlikte eve girdiğinde ne olur? Sistem ev sahibini tanır ama yanındaki misafiri "tanımlanamayan hareket" olarak algılayıp alarm sürecini başlatabilir mi?
+
+    ### 3. Sistemin Mantıksal Akışındaki Zayıflıklar ve Uç Durumlar
+
+    * **Eksik Dallanmalar:**
+        * `sensordeki_ev_sahibimi` -> `Evet` ise ne olacağı şemada belirtilmemiş. Mantıken sistemin `normal` duruma dönmesi gerekir, ancak bu bağlantı eksik.
+        * `bildirim_gönderildimi` -> `Evet` ise ne olacağı belirtilmemiş. Bildirim zaten gönderildiyse bile alarm seviyesini kontrol etme adımına devam etmesi gerekir.
+    * **Alarm Seviyesi Yönetimi:**
+        * `tekrarla` adımındaki `alarm_seviyesi = 0` ifadesi, şemanın en kritik mantık hatasıdır. Eğer bir tehdit devam ediyorsa (hırsız hala içerideyse), sistem her saniye alarm seviyesini sıfırlayacaktır. Bu durumda alarm seviyesi asla 1'in üzerine çıkamaz ve "Girişleri kilitle" veya "Polisi ara" adımları **hiçbir zaman çalışmaz**.
+        * Alarm seviyesi artırıldıktan sonra ev sahibi durumu "güvenli" olarak işaretlemezse seviyenin ne kadar süre o şekilde kalacağı belirsizdir.
+    * **İptal Mekanizmasının Olmaması:**
+        * Ev sahibi yanlış bir alarm durumunda (örneğin yemeği yakıp duman sensörünü tetiklediğinde) veya gerçek bir alarm sonrası durumu kontrol altına aldığında sistemi nasıl devre dışı bırakacak? Şemada bir "alarmı iptal et" veya "şifre gir" adımı bulunmuyor.
+    * **Bildirim Döngüsü:**
+        * `bildirim_gönderildimi` kontrolü "Hayır" ise bildirim gönderiliyor. Peki bu durum (flag) ne zaman sıfırlanıyor? Eğer sıfırlanmazsa, sistem ilk hareketten sonra bir daha asla bildirim göndermeyebilir.
+
+    ### 4. Dış Sistem ve Çevre ile İlgili Uç Durumlar
+
+    * **İletişim Kesintisi:**
+        * İnternet kesildiğinde `Bildirim, E-Posta, SMS Gönder` adımı başarısız olur. Sistemin bu hatayı fark edip ev sahibini başka bir yolla (örneğin sirenle) uyarması veya denemeye devam etmesi gerekir mi?
+        * `Polisi ara` adımı başarısız olursa (hat meşgul, servis yok vb.) ne olacak? Tekrar deneme mekanizması var mı?
+    * **Elektrik Kesintisi:**
+        * Sistemin bir yedek güç kaynağı (UPS, batarya) var mı? Eğer yoksa, elektrik kesintisi sistemi tamamen savunmasız bırakır.
+    * **Fiziksel Müdahale:**
+        * Bir hırsızın doğrudan modem, ana kontrol paneli veya sensörlere zarar vermesi durumunda sistem nasıl tepki verecek?
+
+    Özetle, bu akış şeması iyi bir başlangıç noktasıdır ancak özellikle alarm seviyesinin hatalı bir şekilde sıfırlanması, eş zamanlı sensör verilerinin yönetimi ve kullanıcı tarafından sistemi iptal etme mekanizmasının eksikliği gibi kritik zayıflıklara sahiptir. Bu uç durumların ele alınması, sistemin daha güvenilir ve kullanışlı hale gelmesini sağlayacaktır.
+
+-(Soru)
+    digraph G{
+        start[label="Başla", shape=oval]
+        sistemi_calistir[label="Sistemi çalıştır", shape=rectangle]
+        sensorleri_oku [label="Sensörleri oku", shape=rectangle]
+        sensorlerde_hareket_varmi[label="Kamera, Hareket sensörü, kapı sensöründe hareket varmı (her hareket olan sensörde 1 kez daha aynı kod çalışır.", shape=diamond]
+        sensordeki_ev_sahibimi[label="Sensördeki ev sahibimi?", shape=diamond]
+        bildirim_gönderildimi[label="Ev sahibine bildirim gönderildimi", shape=diamond]
+        bildirim_gönder[label="Bildirim, E-Posta, SMS Gönder", shape=rectangle]
+        alarm_seviyesi_durumu [label="Alarm seviyesini al", shape=rectangle]
+        alarm_seviyesi_1 [label="Alarm seviyesi 1'den büyük yada eşitmi", shape=diamond]
+        alarm_seviyesi_2 [label="Alarm seviyesi 2'den büyük yada eşitmi", shape=diamond]
+        alarm_seviyesi_3 [label="Alarm seviyesi 3'ten büyük yada eşitmi", shape=diamond]
+        alarm_seviyesi_1_yap [label="Alarm çal", shape=rectangle]
+        alarm_seviyesi_2_yap [label="Girişleri kilitle", shape=rectangle]
+        alarm_seviyesi_3_yap [label="Polisi ara", shape=rectangle]
+        alarm_seviyesini_yukselt [label="Alarm seviyesini 1 yükselt", shape=rectangle]
+        tekrarla [label="Tekrarla (alarm_seviyesi = 0) (bekle(1 saniye)", shape=rectangle]
+        normal [label="Alarmları çalıyorlarsa sıfırla, alarm_seviyesi = 0, bildirimleri sıfırla", shape=rectangle]
+        test_bildirimi_gönder [label="Ev sahibine bildirim gönder", shape=rectangle]
+        bildirim_cevabi [label="Ev sahibi tanıyormu/Ev sahibimi", shape=diamond]
+        database_ekle [label="Yüz ve bilgileri tanıdık olarak ekle ve bu kişi hakkında gün boyu bildirim atma", shape=rectangle]
+        
+        start -> sistemi_calistir -> sensorleri_oku
+        sensorleri_oku -> sensorlerde_hareket_varmi
+        sensorlerde_hareket_varmi -> sensordeki_ev_sahibimi [label="Evet"]
+        sensordeki_ev_sahibimi -> test_bildirimi_gönder [label="Hayır"]
+        test_bildirimi_gönder -> bildirim_cevabi
+        bildirim_cevabi -> alarm_seviyesini_yukselt [label="Yabancı"]
+        bildirim_cevabi -> database_ekle[label="Tanıyor"]
+        database_ekle -> normal
+        alarm_seviyesini_yukselt -> bildirim_gönderildimi
+        bildirim_gönderildimi -> bildirim_gönder [label="Hayır"]
+        bildirim_gönder -> alarm_seviyesi_durumu
+        alarm_seviyesi_durumu -> alarm_seviyesi_1
+        alarm_seviyesi_durumu -> alarm_seviyesi_2
+        alarm_seviyesi_durumu -> alarm_seviyesi_3
+        alarm_seviyesi_1 -> alarm_seviyesi_1_yap [label="Evet"]
+        alarm_seviyesi_2 -> alarm_seviyesi_2_yap [label="Evet"]
+        alarm_seviyesi_3 -> alarm_seviyesi_3_yap [label="Evet"]
+        alarm_seviyesi_1_yap -> tekrarla
+        alarm_seviyesi_2_yap -> tekrarla
+        alarm_seviyesi_3_yap -> tekrarla
+        tekrarla -> sensorleri_oku
+        sensorlerde_hareket_varmi -> normal [label="Hayır"]
+        normal -> tekrarla
+    }
+    bu nasıl?
+
+-(Cevap)
+    Harika bir güncelleme! Bu versiyon, bir önceki şemadaki en önemli belirsizliklerden birini, yani "tanımlanamayan kişinin misafir olma" ihtimalini ele alarak sistemi çok daha akıllı ve kullanışlı hale getirmiş.
+
+    İkinci versiyonu analiz edelim:
+
+    ### Kaydedilen Önemli Gelişmeler
+
+    1.  **Akıllı Tanımlama ve Kullanıcı Onayı:** `test_bildirimi_gönder` ve `bildirim_cevabi` adımları mükemmel bir ekleme. Bu, sistemin hatalı pozitifleri (örneğin, eve gelen bir tamirci, arkadaş veya akraba) alarm durumuna dönüştürmesini engeller. Ev sahibine kontrol imkanı tanır.
+    2.  **Öğrenme Yeteneği:** `database_ekle` adımı, sistemin zamanla "tanıdık" yüzleri öğrenmesini sağlar. Bu, aynı misafir için tekrar tekrar bildirim gönderilmesinin önüne geçerek kullanıcı deneyimini iyileştirir.
+    3.  **Daha Net Sıfırlama:** `normal` durumuna "bildirimleri sıfırla" ifadesinin eklenmesi, sistemin bir sonraki olay için temiz bir başlangıç yapmasını garanti altına alır.
+
+    ---
+
+    ### Hala Mevcut Olan veya Yeni Oluşan Uç Durumlar ve Mantıksal Zayıflıklar
+
+    Bu versiyon çok daha iyi olsa da, hala bazı kritik zayıflıklar ve yeni eklenen mantıktan kaynaklanan uç durumlar mevcut:
+
+    #### 1. **En Kritik Mantık Hatası: Alarm Seviyesinin Sıfırlanması**
+
+    Bu sorun ilk şemada da mevcuttu ve **hala düzeltilmemiş**.
+    * **Sorun:** `tekrarla` adımında hala `(alarm_seviyesi = 0)` ifadesi bulunuyor.
+    * **Etkisi:** Sistem bir yabancı tespit edip alarm seviyesini 1'e yükselttiğinde ve alarmı çaldığında (`alarm_seviyesi_1_yap`), bir sonraki döngüde (`tekrarla` adımı sayesinde) alarm seviyesi anında tekrar **sıfıra** düşürülür. Bu durum, alarm seviyesinin **hiçbir zaman 2'ye veya 3'e ulaşamaması** anlamına gelir. Dolayısıyla, **"Girişleri kilitle" ve "Polisi ara" adımları asla tetiklenmez.**
+    * **Çözüm Önerisi:** `alarm_seviyesi = 0` ifadesi `tekrarla` adımından tamamen kaldırılmalıdır. Alarm seviyesi yalnızca `normal` durumuna geçildiğinde (yani, `sensorlerde_hareket_varmi` -> "Hayır" olduğunda veya ev sahibi durumu güvenli olarak işaretlediğinde) sıfırlanmalıdır.
+
+    #### 2. **Yeni Uç Durum: Ev Sahibinden Cevap Gelmemesi**
+
+    Yeni eklenen bildirim onayı mantığı, yeni bir kritik soru doğuruyor:
+    * **Sorun:** `test_bildirimi_gönder` adımından sonra sistem `bildirim_cevabi` bekliyor. Peki, ev sahibi bildirimi görmezse, telefonu kapalıysa veya interneti yoksa ne olacak?
+    * **Etkisi:** Şemaya göre sistem, ev sahibinden bir cevap gelene kadar **sonsuza kadar bekleyebilir**. Bu sırada evin içindeki potansiyel tehlikeye karşı hiçbir aksiyon almaz.
+    * **Çözüm Önerisi:** `bildirim_cevabi` adımından bir "zaman aşımı" (timeout) yolu eklenmelidir. Örneğin, "Cevap 60 saniye içinde gelmezse" -> `alarm_seviyesini_yukselt`. Sistem, cevapsızlığı varsayılan olarak "tehlike" kabul etmelidir.
+
+    #### 3. **Eksik Mantıksal Bağlantı**
+
+    * **Sorun:** `sensordeki_ev_sahibimi` sorusuna "Evet" cevabı verildiğinde ne olacağı hala belirtilmemiş.
+    * **Etkisi:** Sistem, ev sahibini tanıdığında ne yapacağını bilmeden akışta takılı kalabilir.
+    * **Çözüm Önerisi:** `sensordeki_ev_sahibimi` adımından `normal` adımına bir "Evet" oku eklenmelidir. Eğer sistem ev sahibini tanıyorsa, her şeyin normal olduğunu kabul edip durumu sıfırlamalıdır.
+
+    #### 4. **Hala Devam Eden Diğer Konular**
+
+    * **Eş Zamanlı Sensör Tetiklenmesi:** "her hareket olan sensörde 1 kez daha aynı kod çalışır" notu hala geçerli bir sorundur. Birden fazla sensörün aynı anda tetiklenmesi, alarm seviyesinin kontrolsüz bir şekilde artmasına neden olabilir. Olayların tek bir "tehdit" olarak gruplandırılması ve kısa bir süre (debounce time) içinde gelen diğer sinyallerin aynı olayın parçası olarak kabul edilmesi gerekir.
+    * **Fiziksel ve Teknik Uç Durumlar:** İlk analizde belirtilen internet/elektrik kesintisi, sensör arızaları veya fiziksel müdahale gibi durumlar bu şema için de hala geçerlidir.
+
+    ### Özet ve Sonuç
+
+    Bu ikinci versiyon, özellikle "misafir yönetimi" konusunda devrimsel bir adımdır ve sistemi çok daha akıllı hale getirmiştir.
+
+    Ancak, **`tekrarla` adımındaki alarm seviyesini sıfırlama mantığı, sistemin en temel güvenlik fonksiyonlarını (girişleri kilitleme, polisi arama) tamamen işlevsiz kılan kritik bir hatadır.** Bu hata düzeltilmeden sistem etkili bir güvenlik sağlayamaz.
+
+    Ek olarak, kullanıcıdan cevap beklenirken bir "zaman aşımı" mekanizması eklenmesi ve ev sahibi tanındığında ne olacağının belirtilmesi, şemayı mantıksal olarak tamamlayacaktır.
