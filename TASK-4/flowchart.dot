@@ -1,0 +1,90 @@
+digraph G{
+    start [label="Başla"]
+    ogrenci_bilgilerini_al [label="Öğrenci No ve Şifre al", shape=rectangle]
+    ogrenci_bilgileri_dogrumu [label="Sunucuda bilgiler doğrulandımı", shape=diamond]
+    ogrenci_bilgileri_yanlis [label="Öğrenci Bilgileri yanlış lütfen tekrar girin", shape=rectangle]
+    hangi_islem [label="Hangi islem yapmak istersiniz", shape=diamond]
+    bitir [label="Bitir", shape=oval]
+    
+    start -> ogrenci_bilgilerini_al -> ogrenci_bilgileri_dogrumu
+    ogrenci_bilgileri_dogrumu -> ogrenci_bilgileri_yanlis [label="Hayır"]
+    ogrenci_bilgileri_yanlis -> ogrenci_bilgilerini_al
+    ogrenci_bilgileri_dogrumu -> hangi_islem [label="Evet"]
+    hangi_islem -> dersleri_listele [label="Ders seçimi"]
+    hangi_islem -> secilen_dersler_bosmu [label="Ders silme"]
+    hangi_islem -> kayit_ozet_bosmu [label="Ders kayıt tamamlama"]
+    baska_islem -> bitir [label="Hayır"]
+    baska_islem -> hangi_islem [label="Evet"]
+    subgraph ders_secimi{
+        ders_sectimi [label="Öğrenci ders ekliyormu?", shape=diamond]
+        dersleri_listele [label="Öğrencinin alabileceği dersleri sunucudan al ve göster", shape=rectangle]
+        ders_kontenjani_dolumu [label="Ders kontenjanı dolumu", shape=diamond]
+        ders_kontenjani_dolu [label="Ders kontenjanı dolu", shape=rectangle]
+        on_kosul_karsilaniyormu [label="Ön koşul dersi alındımı", shape=diamond]
+        ders_saati_cakisiyormu [label="Ders saatinde uyuşmazlık varmı", shape=diamond]
+        ders_listeye_ekle [label="Dersi listeye ekle", shape=rectangle]
+        on_kosul_karsilanmiyor [label="Ön koşul dersi alınmamış", shape=rectangle]
+        ders_saatleri_cakisiyor [label="Ders saatleri çakışıyor", shape=rectangle]
+        kredi_limitini_asiyormu [label="Kredi Limitini aşıyormu (ortalama <= 35)", shape=diamond]
+        kredi_limitini_asiyor [label="Kredi limitini aşıyor", shape=rectangle]
+        eklenen_ders_zaten_varmi [label="Eklenen ders zaten varmı?", shape= diamond]
+        eklenen_ders_zaten_var [label="Eklenen ders zaten var", shape=rectangle]
+        secilen_dersleri_listele [label="Öğrencinin seçtiği dersleri listele", shape=rectangle]
+        secilen_dersler_bosmu [label="Ders seçilmişmi", shape=diamond]
+        secilen_dersler_bos [label="Hiçbir ders seçilmemiş", shape=rectangle]
+        silinecek_ders_secildimi [label="Silinecek ders seçildimi", shape=diamond]
+        secilen_dersi_sil [label="Ders listesinden seçilen dersi sil", shape= rectangle]
+        baska_islem[label="Başka bir işlem yapmak istermisiniz", shape=diamond]
+        
+        dersleri_listele -> ders_sectimi
+        ders_sectimi -> ders_kontenjani_dolumu [label="Evet"]
+        ders_kontenjani_dolumu -> on_kosul_karsilaniyormu [label="Hayır"]
+        ders_kontenjani_dolumu -> ders_kontenjani_dolu [label="Evet"]
+        ders_kontenjani_dolu -> dersleri_listele
+        on_kosul_karsilaniyormu -> ders_saati_cakisiyormu [label="Evet"]
+        on_kosul_karsilaniyormu -> on_kosul_karsilanmiyor [label="Hayır"]
+        on_kosul_karsilanmiyor -> dersleri_listele
+        ders_saati_cakisiyormu -> kredi_limitini_asiyormu [label="Hayır"]
+        ders_saati_cakisiyormu -> ders_saatleri_cakisiyor [label="Evet"]
+        ders_saatleri_cakisiyor -> dersleri_listele
+        kredi_limitini_asiyormu -> kredi_limitini_asiyor [label="Evet"]
+        kredi_limitini_asiyor -> baska_islem
+        kredi_limitini_asiyormu -> eklenen_ders_zaten_varmi [label="Hayır"]
+        eklenen_ders_zaten_varmi -> eklenen_ders_zaten_var [label="Evet"]
+        eklenen_ders_zaten_var -> baska_islem
+        eklenen_ders_zaten_varmi -> ders_listeye_ekle [label="Evet"]
+        ders_listeye_ekle -> baska_islem
+        
+        secilen_dersler_bosmu -> secilen_dersler_bos [label="Hayır"]
+        secilen_dersler_bos -> baska_islem
+        secilen_dersler_bosmu -> secilen_dersleri_listele [label="Evet"]
+        secilen_dersleri_listele -> silinecek_ders_secildimi
+        silinecek_ders_secildimi -> secilen_dersi_sil [label="Evet"]
+        secilen_dersi_sil -> baska_islem
+    }
+    subgraph ders_kayit_tamamla{
+        kayit_ozet_bosmu [label="Kayıt özeti boşmu?", shape = diamond]
+        kayit_ozet_bos [label="Lütfen ders seçimi kısmından ders seçin", shape = rectangle]
+        kayit_ozet_goster [label="Ders listesini göster", shape = rectangle]
+        kayit_tusuna_basildimi [label="Kayıt tuşuna basıldımı", shape = diamond]
+        ortalamasi_yeterlimi [label="Ortalaması 2.5'in üstündemi", shape=diamond]
+        ortalamasi_yetersiz [label="Ders kaydını tamamlayabilmek için danışman onayına ihtiyacınız var", shape=rectangle]
+        derslerin_kontenjanlarini_kontrol_et [label="Ders kontenjanlari dolumu", shape=diamond]
+        dersin_kontenjani_dolu [label="Ders kontenjanı dolu", shape=rectangle]
+        derslerin_kontenjanlarini_dusur [label="Her dersin kontenjanını düşür", shape=rectangle]
+        kayit_tamamla [label="Ders kayıdını tamamla", shape=rectangle]
+        
+        kayit_ozet_bosmu -> kayit_ozet_bos [label="Evet"]
+        kayit_ozet_bos -> baska_islem
+        kayit_ozet_bosmu -> kayit_ozet_goster [label="Hayır"]
+        kayit_ozet_goster -> kayit_tusuna_basildimi
+        kayit_tusuna_basildimi -> ortalamasi_yeterlimi [label="Evet"]
+        ortalamasi_yeterlimi -> derslerin_kontenjanlarini_kontrol_et [label="Evet"]
+        ortalamasi_yeterlimi -> ortalamasi_yetersiz [label="Hayır"]
+        ortalamasi_yetersiz -> baska_islem
+        derslerin_kontenjanlarini_kontrol_et -> derslerin_kontenjanlarini_dusur [label="Evet"]
+        derslerin_kontenjanlarini_kontrol_et -> dersin_kontenjani_dolu [label="Hayır"]
+        derslerin_kontenjanlarini_dusur -> kayit_tamamla -> baska_islem
+        dersin_kontenjani_dolu -> baska_islem
+    }
+}

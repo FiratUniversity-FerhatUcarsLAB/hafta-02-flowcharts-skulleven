@@ -1,0 +1,143 @@
+-(Soru)
+    digraph G{
+        start [label="Başla"]
+        ogrenci_bilgilerini_al [label="Öğrenci No ve Şifre al", shape=rectangle]
+        ogrenci_bilgileri_dogrumu [label="Sunucuda bilgiler doğrulandımı", shape=diamond]
+        ogrenci_bilgileri_yanlis [label="Öğrenci Bilgileri yanlış lütfen tekrar girin", shape=rectangle]
+        hangi_islem [label="Hangi islem yapmak istersiniz", shape=diamond]
+        bitir [label="Bitir", shape=oval]
+        
+        start -> ogrenci_bilgilerini_al -> ogrenci_bilgileri_dogrumu
+        ogrenci_bilgileri_dogrumu -> ogrenci_bilgileri_yanlis [label="Hayır"]
+        ogrenci_bilgileri_yanlis -> ogrenci_bilgilerini_al
+        ogrenci_bilgileri_dogrumu -> hangi_islem [label="Evet"]
+        hangi_islem -> dersleri_listele [label="Ders seçimi"]
+        hangi_islem -> secilen_dersler_bosmu [label="Ders silme"]
+        hangi_islem -> kayit_ozet_bosmu [label="Ders kayıt tamamlama"]
+        subgraph ders_secimi{
+            ders_sectimi [label="Öğrenci ders ekliyormu?", shape=diamond]
+            dersleri_listele [label="Öğrencinin alabileceği dersleri sunucudan al ve göster", shape=rectangle]
+            ders_kontenjani_dolumu [label="Ders kontenjanı dolumu", shape=diamond]
+            ders_kontenjani_dolu [label="Ders kontenjanı dolu", shape=rectangle]
+            on_kosul_karsilaniyormu [label="Ön koşul dersi alındımı", shape=diamond]
+            ders_saati_cakisiyormu [label="Ders saatinde uyuşmazlık varmı", shape=diamond]
+            ders_listeye_ekle [label="Dersi listeye ekle", shape=rectangle]
+            on_kosul_karsilanmiyor [label="Ön koşul dersi alınmamış", shape=rectangle]
+            ders_saatleri_cakisiyor [label="Ders saatleri çakışıyor", shape=rectangle]
+            kredi_limitini_asiyormu [label="Kredi Limitini aşıyormu", shape=diamond]
+            kredi_limitini_asiyor [label="Kredi limitini aşıyor", shape=rectangle]
+            secilen_dersleri_listele [label="Öğrencinin seçtiği dersleri listele", shape=rectangle]
+            secilen_dersler_bosmu [label="Ders seçilmişmi", shape=diamond]
+            secilen_dersler_bos [label="Hiçbir ders seçilmemiş", shape=rectangle]
+            silinecek_ders_secildimi [label="Silinecek ders seçildimi", shape=diamond]
+            secilen_dersi_sil [label="Ders listesinden seçilen dersi sil", shape= rectangle]
+            baska_islem[label="Başka bir işlem yapmak istermisiniz", shape=diamond]
+            
+            dersleri_listele -> ders_sectimi
+            ders_sectimi -> ders_kontenjani_dolumu [label="Evet"]
+            ders_kontenjani_dolumu -> on_kosul_karsilaniyormu [label="Evet"]
+            ders_kontenjani_dolumu -> ders_kontenjani_dolu [label="Hayır"]
+            ders_kontenjani_dolu -> dersleri_listele
+            on_kosul_karsilaniyormu -> ders_saati_cakisiyormu [label="Evet"]
+            on_kosul_karsilaniyormu -> on_kosul_karsilanmiyor [label="Hayır"]
+            on_kosul_karsilanmiyor -> dersleri_listele
+            ders_saati_cakisiyormu -> kredi_limitini_asiyormu [label="Hayır"]
+            ders_saati_cakisiyormu -> ders_saatleri_cakisiyor [label="Evet"]
+            ders_saatleri_cakisiyor -> dersleri_listele
+            kredi_limitini_asiyormu -> kredi_limitini_asiyor [label="Evet"]
+            kredi_limitini_asiyor -> baska_islem
+            kredi_limitini_asiyormu -> ders_listeye_ekle [label="Hayır"]
+            ders_listeye_ekle -> baska_islem
+            
+            secilen_dersler_bosmu -> secilen_dersler_bos [label="Hayır"]
+            secilen_dersler_bos -> hangi_islem
+            secilen_dersler_bosmu -> secilen_dersleri_listele [label="Evet"]
+            secilen_dersleri_listele -> silinecek_ders_secildimi
+            silinecek_ders_secildimi -> secilen_dersi_sil [label="Evet"]
+            secilen_dersi_sil -> baska_islem
+        }
+        subgraph ders_kayit_tamamla{
+            kayit_ozet_bosmu [label="Kayıt özeti boşmu?", shape = diamond]
+            kayit_ozet_bos [label="Lütfen ders seçimi kısmından ders seçin", shape = rectangle]
+            kayit_ozet_goster [label="Ders listesini göster", shape = rectangle]
+            kayit_tusuna_basildimi [label="Kayıt tuşuna basıldımı", shape = diamond]
+            ortalamasi_yeterlimi [label="Ortalaması 2.5'in üstündemi", shape=diamond]
+            ortalamasi_yetersiz [label="Ders kaydını tamamlayabilmek için danışman onayına ihtiyacınız var", shape=rectangle]
+            derslerin_kontenjanlarini_kontrol_et [label="Ders kontenjanlari dolumu", shape=diamond]
+            dersin_kontenjani_dolu [label="Ders kontenjanı dolu", shape=rectangle]
+            derslerin_kontenjanlarini_dusur [label="Her dersin kontenjanını düşür", shape=rectangle]
+            kayit_tamamla [label="Ders kayıdını tamamla", shape=rectangle]
+            
+            kayit_ozet_bosmu -> kayit_ozet_bos [label="Evet"]
+            kayit_ozet_bos -> baska_islem
+            kayit_ozet_bosmu -> kayit_ozet_goster [label="Hayır"]
+            kayit_ozet_goster -> kayit_tusuna_basildimi
+            kayit_tusuna_basildimi -> ortalamasi_yeterlimi [label="Evet"]
+            ortalamasi_yeterlimi -> derslerin_kontenjanlarini_kontrol_et [label="Evet"]
+            ortalamasi_yeterlimi -> ortalamasi_yetersiz [label="Hayır"]
+            ortalamasi_yetersiz -> baska_islem
+            derslerin_kontenjanlarini_kontrol_et -> derslerin_kontenjanlarini_dusur [label="Evet"]
+            derslerin_kontenjanlarini_kontrol_et -> dersin_kontenjani_dolu [label="Hayır"]
+            derslerin_kontenjanlarini_dusur -> kayit_tamamla -> baska_islem
+        }
+    }
+
+    bu flowchart için bana edgecaseleri bulurmusun
+
+-(Cevap)
+    Harika bir akış şeması (flowchart) hazırlamışsınız. Bu şema, öğrenci ders kayıt sisteminin temel mantığını çok net bir şekilde ortaya koyuyor. "Edge case", bir sistemin normal çalışma parametrelerinin dışında, beklenmedik veya aşırı uç durumlarda nasıl davrandığını test eden senaryolardır. Şemanızı analiz ederek olası edge case'leri ve mantıksal boşlukları aşağıda listeledim:
+
+    ### Genel ve Oturum Yönetimi ile İlgili Edge Case'ler
+
+    1.  **Sunucu ve Bağlantı Hataları:**
+        * **Doğrulama Sırasında Bağlantı Kopması:** `ogrenci_bilgileri_dogrumu` aşamasında sunucuya ulaşılamazsa ne olur? Sistem donar mı, yoksa bir "Sunucuya ulaşılamıyor, lütfen sonra tekrar deneyin" hatası verir mi?
+        * **İşlem Ortasında Bağlantı Kopması:** Öğrenci ders seçerken veya kaydı tamamlarken internet bağlantısı giderse ne olur? Seçtiği dersler kaybolur mu, yoksa oturum bilgisi bir süre saklanır mı?
+
+    2.  **Oturum Zaman Aşımı (Session Timeout):**
+        * Öğrenci giriş yaptıktan sonra `hangi_islem` ekranında uzun süre beklerse oturumu sonlandırılıyor mu? Tekrar işlem yapmak istediğinde yeniden giriş yapması gerekir mi?
+
+    3.  **Hatalı Veri Girişleri:**
+        * `ogrenci_bilgilerini_al` aşamasında öğrenci numarası alanına harf veya şifre alanına izin verilmeyen özel karakterler girilirse ne olur? Sistemin buna hazırlıklı olması gerekir.
+
+    4.  **Yetkilendirme Sorunları:**
+        * Mezun olmuş, kaydı dondurulmuş veya pasif durumdaki bir öğrenci sisteme giriş yapmaya çalışırsa ne olur? Şemada sadece "doğru/yanlış" kontrolü var, öğrencinin statüsünü kontrol eden bir adım yok.
+
+    ### Ders Seçimi (`ders_secimi`) Süreciyle İlgili Edge Case'ler
+
+    5.  **Eş Zamanlılık ve Race Condition (Yarış Durumu):**
+        * **Son Kontenjanı İki Kişinin Aynı Anda Seçmesi:** Bir dersin son kontenjanı kaldığında, iki öğrenci aynı anda o dersi listesine ekleyip kaydı tamamlamaya çalışırsa ne olur? Sistem ikisine de izin verir mi, yoksa sadece ilk davranana mı? Bu, özellikle kaydı tamamlama anındaki `derslerin_kontenjanlarini_kontrol_et` adımında kritik bir sorundur. Kontrol ve kontenjan düşürme işlemi **atomik (bölünemez bir bütün)** olmalıdır.
+        * **Ders Bilgilerinin Değişmesi:** Öğrenci "Alabileceği dersler" listesine bakarken, bir yönetici o dersin kontenjanını, saatini veya ön koşulunu değiştirirse ne olur? Öğrencinin ekranındaki bilgi eskir ve hatalı işlem yapmasına neden olabilir.
+
+    6.  **Ön Koşul Mantığı:**
+        * **Zincirleme ve Çoklu Ön Koşullar:** Bir dersin ön koşulu "X dersinden en az DD ile geçmek" veya "Y ve Z derslerini almış olmak" gibi karmaşık bir yapıda olabilir. Mevcut şemadaki `on_kosul_karsilaniyormu` adımı bu durumu basite indirgiyor.
+        * **Aynı Dönemde Ön Koşul Dersi Alma:** Öğrenci, bir dersin ön koşulu olan başka bir dersi aynı dönemde seçebilir mi (co-requisite)? Şema bu duruma izin verip vermediğini belirtmiyor.
+
+    7.  **Kredi Limiti:**
+        * **Değişken Kredi Limiti:** Not ortalaması (AGNO) yüksek olan bir öğrenci daha fazla kredi alabilir. Şema, herkes için sabit bir kredi limiti varmış gibi davranıyor.
+        * **Değişken Kredili Dersler:** "3-5 kredi" gibi değişken kredili bir proje dersi seçildiğinde kredi limiti nasıl hesaplanır?
+
+    8.  **Mantıksal Tutarsızlıklar ve Eksik Adımlar:**
+        * **Kontenjan Kontrolü Mantığı:** `ders_kontenjani_dolumu` sorusuna "Evet" (dolu) cevabı verildiğinde süreç devam ediyor, "Hayır" (dolu değil) cevabına ise hata veriliyor. Bu mantık ters duruyor. "Evet" cevabının `ders_kontenjani_dolu` hatasına gitmesi gerekirdi.
+        * **Aynı Dersi Tekrar Ekleme:** Öğrenci, seçtiği bir dersi yanlışlıkla tekrar eklemeye çalışırsa ne olur? Sistemin "Bu ders zaten listenizde" gibi bir uyarı vermesi gerekir.
+        * **Ders Silme Onayı:** `secilen_dersi_sil` adımından önce "Bu dersi silmek istediğinize emin misiniz?" gibi bir onay adımı bulunmuyor. Bu, yanlışlıkla ders silmelerine yol açabilir.
+
+    ### Ders Kayıt Tamamlama (`ders_kayit_tamamla`) Süreciyle İlgili Edge Case'ler
+
+    9.  **Ortalama (AGNO) Hesaplaması:**
+        * **İlk Defa Ders Alan Öğrenci:** Henüz not ortalaması oluşmamış (1. sınıfın ilk dönemi) bir öğrenci için `ortalamasi_yeterlimi` adımı nasıl çalışır? Bu kuraldan muaf mı tutulurlar?
+        * **Danışman Onayı Süreci:** Ortalaması yetersiz olan öğrenciye "danışman onayına ihtiyacınız var" deniliyor. Peki sonraki adım ne? Sistem danışmana bir bildirim gönderiyor mu, yoksa süreç tamamen sistem dışında mı işliyor? Akış burada sonlanıyor.
+
+    10. **Kısmi Başarı/Başarısızlık:**
+        * Öğrenci 5 ders seçtiyse ve kaydı tamamlama anında bu derslerden sadece birinin kontenjanı dolduysa ne olur?
+            * Tüm kayıt işlemi iptal mi edilir?
+            * Sadece o ders dışındaki 4 ders mi kaydedilir? Şema, tüm dersleri tek bir seferde kontrol edip (`derslerin_kontenjanlarini_kontrol_et`) hepsi uygunsa işleme devam ettiği için "tümü ya da hiçbiri" mantığıyla çalışıyor gibi görünüyor. Kısmi kayıt daha kullanıcı dostu bir yaklaşım olabilir.
+
+    11. **Sistem Çökmesi:**
+        * Tam `derslerin_kontenjanlarini_dusur` adımı yapıldıktan sonra ama `kayit_tamamla` mesajı öğrenciye gösterilmeden önce sistem çökerse ne olur? Kontenjanlar düşmüş ama öğrenci kaydının tamamlandığını bilmiyor olacaktır. Bu durum, veritabanı işlemlerinin "transaction" mantığıyla yönetilmesini gerektirir.
+
+    ### Akış Şemasının Genel Mantığıyla İlgili Notlar
+
+    * **Çıkış ve Geri Dönüş Yok:** `baska_islem` ve `hangi_islem` adımlarında bir "Çıkış Yap" veya "Bitir" seçeneği bulunmuyor. `bitir` adımı tanımlanmış ama hiçbir yerden ulaşılamıyor.
+    * **İptal/Geri Al Seçeneği:** Öğrenci bir menüye girdikten sonra (örneğin ders silme), vazgeçip ana menüye (`hangi_islem`) dönmek için bir yola sahip değil. Her yol bir işlemle sonuçlanıyor.
+
+    Bu edge case'leri düşünerek akış şemanızı daha sağlam ve kullanıcı dostu hale getirebilirsiniz.
