@@ -1,0 +1,217 @@
+-(Soru)
+    E-ticaret sitesinde sepet yönetimi ve ödeme sistemini adım adım açıkla. Kullanıcı girişi, ürün ekleme, stok kontrolü, indirim kodu, kargo hesaplama ve ödeme aşamalarını içermeli
+
+-(Cevap)
+    Harika bir soru! Bir e-ticaret sitesinin temel işleyişini oluşturan sepet yönetimi ve ödeme sisteminin adımlarını, kullanıcı ve sistem perspektifinden detaylı bir şekilde açıklayalım.
+
+    ### E-Ticaret Sepet ve Ödeme Sistemi Akışı
+
+    Bu süreç, kullanıcının bir ürünü beğenip "Sepete Ekle" butonuna basmasıyla başlar ve ödemenin başarıyla tamamlanıp siparişin oluşturulmasıyla sona erer. İşte bu sürecin adım adım dökümü:
+
+    ---
+
+    #### Adım 1: Kullanıcı Girişi ve Ürün Ekleme
+
+    **Kullanıcı Tarafı:**
+    1.  Kullanıcı siteyi gezer, beğendiği bir ürünün sayfasını açar.
+    2.  İstediği adedi seçer ve "Sepete Ekle" butonuna tıklar.
+    3.  Genellikle sayfanın köşesinde bulunan sepet ikonu güncellenir ve eklenen ürün sayısını gösterir.
+
+    **Sistem Tarafı (Arka Plan):**
+    1.  **Session (Oturum) Yönetimi:**
+        * **Kullanıcı Giriş Yapmamışsa (Misafir):** Sistem, tarayıcıda geçici bir kimlik (session ID) oluşturur. Sepete eklenen ürünler (ürün ID'si ve adedi) bu geçici kimlikle ilişkilendirilir. Kullanıcı tarayıcıyı kapatana kadar sepeti aktif kalır.
+        * **Kullanıcı Giriş Yapmışsa:** Sepete eklenen ürünler, doğrudan kullanıcının veritabanındaki hesabıyla ilişkilendirilir. Bu sayede kullanıcı farklı bir cihazdan giriş yapsa bile sepetindeki ürünleri görebilir.
+    2.  **Veritabanı İşlemi:** `Sepet` (Carts) veya `Sepet Ürünleri` (Cart_Items) tablosuna yeni bir kayıt eklenir. Bu kayıtta `session_id` veya `user_id`, `product_id` ve `quantity` (adet) bilgileri bulunur.
+
+    ---
+
+    #### Adım 2: Stok Kontrolü (İlk Aşama)
+
+    **Kullanıcı Tarafı:**
+    * Kullanıcı için bu aşama genellikle şeffaftır. Eğer stokta olmayan bir ürünü veya stoktan fazla adette eklemeye çalışırsa bir uyarı mesajı görür ("Üzgünüz, bu üründen stokta sadece 5 adet bulunmaktadır.").
+
+    **Sistem Tarafı (Arka Plan):**
+    1.  Kullanıcı "Sepete Ekle" butonuna bastığı anda sistem, anlık olarak `Ürünler` (Products) tablosundaki ilgili ürünün stok adedini (`stock_quantity`) kontrol eder.
+    2.  Eğer kullanıcının eklemek istediği adet, mevcut stoktan fazlaysa işlem engellenir ve kullanıcıya bir hata mesajı gösterilir.
+    3.  Bu ilk kontrol, kullanıcının olmayacak bir ürünü sepetine eklemesini en baştan engeller. **Asıl kritik stok kontrolü ödeme anında yapılır.**
+
+    ---
+
+    #### Adım 3: Sepet Sayfası ve Güncellemeler
+
+    **Kullanıcı Tarafı:**
+    1.  Kullanıcı sepet ikonuna tıklayarak sepet sayfasına gider.
+    2.  Bu sayfada eklediği ürünleri, resimlerini, fiyatlarını, adetlerini ve ara toplamı görür.
+    3.  Ürün adetini artırabilir, azaltabilir veya ürünü sepetten tamamen silebilir.
+
+    **Sistem Tarafı (Arka Plan):**
+    1.  Kullanıcının `session_id` veya `user_id` bilgisine göre veritabanından sepetindeki ürünler çekilir.
+    2.  Kullanıcı adet değişikliği yaptığında veya ürün sildiğinde, veritabanındaki ilgili kayıt anında güncellenir.
+    3.  Her güncellemede ara toplam ve diğer bilgiler yeniden hesaplanarak ekrana yansıtılır.
+
+    ---
+
+    #### Adım 4: İndirim Kodu ve Kargo Hesaplama
+
+    **Kullanıcı Tarafı:**
+    1.  **İndirim Kodu:** Sepet sayfasında genellikle "İndirim Kodu" veya "Hediye Çeki" başlıklı bir alan bulunur. Kullanıcı elindeki kodu bu alana girer ve "Uygula" butonuna basar.
+    2.  **Kargo:** Kullanıcı "Ödemeye Geç" adımına ilerlediğinde adres bilgilerini girer. Bu bilgilere göre kargo ücreti hesaplanır ve toplam tutara eklenir.
+
+    **Sistem Tarafı (Arka Plan):**
+    1.  **İndirim Kodu Doğrulama:**
+        * Girilen kod, veritabanındaki `İndirim Kodları` (Discount_Codes) tablosunda sorgulanır.
+        * Kodun geçerliliği (aktif mi?), son kullanma tarihi, minimum sepet tutarı gibi koşulları kontrol edilir.
+        * Koşullar uygunsa, indirim (yüzdesel veya sabit tutar) sepetin ara toplamından düşülür ve yeni toplam kullanıcıya gösterilir.
+    2.  **Kargo Ücreti Hesaplama:**
+        * **Sabit Fiyat:** Tüm siparişler için tek bir kargo ücreti uygulanır.
+        * **Adrese Göre:** Kullanıcının girdiği şehir veya bölgeye göre kargo ücreti değişir. Bu bilgi genellikle kargo firmasıyla yapılan anlaşmaya göre veritabanında tutulur.
+        * **Sepet Tutarına Göre:** Belirli bir tutarın (örneğin 500 TL) üzerindeki alışverişlerde kargo ücretsiz olabilir.
+        * **API Entegrasyonu:** Gelişmiş sistemlerde, kargo firmasının API'si kullanılarak desi/ağırlık ve adrese göre anlık fiyat alınabilir.
+        * Hesaplanan kargo ücreti, indirimli fiyata eklenerek **Genel Toplam** oluşturulur.
+
+    ---
+
+    #### Adım 5: Ödeme Aşamaları
+
+    Bu, sürecin en kritik ve güvenlik gerektiren adımıdır.
+
+    **Kullanıcı Tarafı:**
+    1.  Adres (teslimat ve fatura) bilgilerini girer veya kayıtlı adreslerinden birini seçer.
+    2.  Ödeme yöntemini seçer (Kredi/Banka Kartı, Havale/EFT, Kapıda Ödeme vb.).
+    3.  Kredi kartını seçtiyse, kart bilgilerini (Kart Numarası, Son Kullanma Tarihi, CVV) forma girer.
+    4.  Ön bilgilendirme formu ve mesafeli satış sözleşmesini onaylar.
+    5.  "Ödemeyi Tamamla" veya "Siparişi Onayla" butonuna basar.
+    6.  Bankanın 3D Secure güvenlik sayfasına yönlendirilir ve telefonuna gelen şifreyi girer.
+
+    **Sistem Tarafı (Arka Plan):**
+    1.  **Kritik Stok Kontrolü (İkinci ve En Önemli Aşama):** Kullanıcı "Ödemeyi Tamamla" butonuna bastığı an, sistem **tekrar** sepetteki her bir ürünün stoğunu veritabanından kontrol eder. Bu çok önemlidir çünkü kullanıcı sepetiyle oyalanırken başka bir müşteri aynı ürünün son stoğunu satın almış olabilir ("race condition" durumu). Stokta eksik varsa ödeme işlemi durdurulur ve kullanıcıya bilgi verilir.
+    2.  **Ödeme Ağ Geçidi (Payment Gateway) Entegrasyonu:**
+        * E-ticaret sitesi, güvenlik nedeniyle (PCI-DSS uyumluluğu) kredi kartı bilgilerini **asla kendi veritabanında saklamaz.**
+        * Tüm ödeme bilgileri, şifreli bir bağlantı (API) üzerinden Iyzico, PayTR, Stripe gibi lisanslı bir ödeme ağ geçidi sağlayıcısına gönderilir.
+        * Ödeme ağ geçidi, banka ile iletişime geçerek provizyon (ödeme onayı) almaya çalışır.
+    3.  **Sonuçların İşlenmesi:**
+        * **Ödeme Başarılıysa:** Ödeme ağ geçidi, sisteme "başarılı" bir yanıt döner. Sistem bunun üzerine şu işlemleri yapar:
+            * `Siparişler` (Orders) tablosuna yeni bir sipariş kaydı oluşturur (sipariş no, kullanıcı bilgileri, adres, toplam tutar vb.).
+            * `Sipariş Ürünleri` (Order_Items) tablosuna bu siparişe ait ürünleri kaydeder.
+            * İlgili ürünlerin stoğunu veritabanından düşer (`UPDATE products SET stock_quantity = stock_quantity - 1 WHERE id = ...`).
+            * Kullanıcının sepetini temizler.
+            * Kullanıcıya bir "Siparişiniz Alındı" sayfası gösterir ve e-posta/SMS ile sipariş onayını gönderir.
+        * **Ödeme Başarısızsa:** Ödeme ağ geçidi, sisteme "başarısız" bir yanıt ve hata kodu (yetersiz bakiye, hatalı bilgi vb.) döner. Sistem:
+            * Stoğu düşürmez, siparişi oluşturmaz.
+            * Kullanıcıya ödemenin neden başarısız olduğuna dair bir mesaj gösterir ve tekrar denemesini ister.
+
+    Bu adımlar, modern bir e-ticaret sitesinin temelini oluşturur ve hem kullanıcı deneyimini hem de operasyonel verimliliği doğrudan etkiler.
+
+-(Soru)
+        digraph G{
+        start [shape=oval, label="Başla"]
+        kullanici_siteye_girdi [shape=rectangle label="Kullanıcı siteye girdi. Ürün sayfasını göster."]
+        sepete_ekle_tusuna_basildimi [shape=diamond label="Sepete ekle tuşuna basıldımı?"]
+        stok_kontrol [shape=diamond label="Üründen istenilen miktarda stok varmı?"]
+        giris_yap [shape=rectangle label="Kullanıcı Adı ve şifreyi al"]
+        girisi_onayla [shape=diamond label="Sunucudan giriş için onay geldimi?"]
+        sepeti_goster [shape=rectangle label="Sepeti göster"]
+        baska_islem_sepet [shape=diamond label="Ürününüz sepete eklendi. Başka ürünlere bakmak istermisiniz?"]
+        fiyat_test_50 [shape=diamond label="Sepet tutarı 50TL'yi aşıyormu?"]
+        fiyat_test_50_fail [shape=rectangle label="Sepet tutarı en az 50TL olmalı"]
+        kargo_ucreti_200 [shape=diamond label="Sepet tutarı 200TL'yi aşıyormu?"]
+        kargo_ucreti_bedava [shape=rectangle label="Kargo bedava"]
+        kargo_ucreti_40 [shape=rectangle label="fiyat = fiyat + kargo(40 TL)"]
+        indirim_kodu [shape=diamond label="İndirim Kodu uygulandımı?"]
+        indirim_kodu_dogrulama [shape=diamond label="Sunucudan indirim kodu doğrulandımı"]
+        indirim_kodu_uygula [shape=rectangle label="fiyat = fiyat - (fiyat* indirim yüzdesi)"]
+        indirim_kodu_yanlis [shape=rectangle label="İndirim kodu geçersiz"]
+        satin_al_tusuna_basildimi[shape=diamond label="Satın Al tuşuna basıldımı?"]
+        kart_ve_adres_bilgilerini_al [shape=rectangle label="Adres ve kart bilgilerini al."]
+        odeme_yontemi_sec [shape=diamond label="Ödeme yöntemi kartmı?"]
+        stok_kontrol_2 [shape=diamond label="Ürünler hala stoktamı?"]
+        bilgileri_odeme_firmasina_gonder [shape=diamond label="Ödeme onayı geldimi?"]
+        bilgilendirme_mesaji_gonder [shape=rectangle label="Bilgilendirme mesajlarını gönder"]
+        urunleri_stoktan_kaldir [shape=rectangle label="Ürünleri stoktan sil"]
+        baska_urunlere_bakmak_istermisiniz [shape=diamond label="Başka ürünlere bakmak istermisiniz"]
+        
+        start -> kullanici_siteye_girdi
+        kullanici_siteye_girdi -> sepete_ekle_tusuna_basildimi
+        sepete_ekle_tusuna_basildimi -> stok_kontrol [label="Evet"]
+        stok_kontrol -> giris_yap [label="Evet"]
+        stok_kontrol -> kullanici_siteye_girdi [label="Hayır."]
+        giris_yap -> girisi_onayla
+        girisi_onayla -> sepeti_goster [label="Evet"]
+        girisi_onayla -> giris_yap [label="Hayır"]
+        baska_islem_sepet -> kullanici_siteye_girdi [label="Evet"]
+        sepeti_goster -> baska_islem_sepet
+        baska_islem_sepet -> fiyat_test_50 [label="Hayır"]
+        fiyat_test_50 -> fiyat_test_50_fail [label="Hayır"]
+        fiyat_test_50_fail -> sepeti_goster
+        fiyat_test_50 -> kargo_ucreti_200 [label="Evet"]
+        kargo_ucreti_200 -> kargo_ucreti_bedava [label="Evet"]
+        kargo_ucreti_200 -> kargo_ucreti_40 [label="Hayır"]
+        kargo_ucreti_40 -> indirim_kodu
+        kargo_ucreti_bedava -> indirim_kodu
+        indirim_kodu -> indirim_kodu_dogrulama [label="Evet"]
+        indirim_kodu_dogrulama -> indirim_kodu_uygula [label="Evet"]
+        indirim_kodu_dogrulama -> indirim_kodu_yanlis [label="Hayır"]
+        indirim_kodu_yanlis -> sepeti_goster
+        indirim_kodu_uygula -> satin_al_tusuna_basildimi
+        indirim_kodu -> satin_al_tusuna_basildimi [label="Hayır"]
+        satin_al_tusuna_basildimi -> stok_kontrol_2
+        stok_kontrol_2 -> sepeti_goster [label="Hayır"]
+        stok_kontrol_2 -> odeme_yontemi_sec [label="Evet"]
+        odeme_yontemi_sec -> kart_ve_adres_bilgilerini_al [label="Evet"]
+        kart_ve_adres_bilgilerini_al -> bilgileri_odeme_firmasina_gonder
+        bilgileri_odeme_firmasina_gonder -> sepeti_goster [label="Hayır"]
+        bilgileri_odeme_firmasina_gonder -> bilgilendirme_mesaji_gonder [label="Evet"]
+        bilgilendirme_mesaji_gonder -> urunleri_stoktan_kaldir -> baska_urunlere_bakmak_istermisiniz
+        baska_urunlere_bakmak_istermisiniz -> kullanici_siteye_girdi [label="Evet"]
+        baska_urunlere_bakmak_istermisiniz -> Bitir
+    }
+
+    bu flowchart ile ilgili edgecaseleri söylermisin
+
+-(Cevap)
+    Harika bir akış şeması (flowchart) hazırlamışsınız. Bu şema, e-ticaretin temel "mutlu yol" (happy path) senaryosunu, yani her şeyin yolunda gittiği durumu çok güzel özetliyor.
+
+    Ancak yazılım geliştirmenin en kritik kısımlarından biri, bu "mutlu yol"un dışına çıkabilecek istisnai durumları, yani **"edge case"leri** öngörmek ve yönetmektir. İşte sizin flowchart'ınızla ilgili akla gelen önemli edge case'ler ve potansiyel sorunlar:
+
+    ### 1. Kullanıcı Davranışları ve Arayüz Edge Case'leri
+
+    * **Misafir (Guest) Kullanıcı:** Akışınız, `stok_kontrol` sonrası kullanıcıyı doğrudan `giris_yap` adımına zorluyor.
+        * **Edge Case:** Kullanıcı üye olmak istemezse ne olacak? Bu durum, sepet terk etme oranını (cart abandonment) ciddi şekilde artırır.
+        * **Çözüm:** "Misafir Olarak Devam Et" seçeneği sunulmalı ve sipariş kullanıcının e-posta adresi üzerinden takip edilmelidir.
+    * **Sayfa Yenileme ve Geri Tuşu:** Kullanıcı, özellikle ödeme onayı beklerken (bankadan yanıt gelmesini beklerken) sayfayı yenilerse veya geri tuşuna basarsa ne olur?
+        * **Edge Case:** Bu durum, aynı sipariş için mükerrer ödeme alınmasına veya ödeme başarılı olduğu halde siparişin oluşmamasına neden olabilir.
+        * **Çözüm:** Ödeme başlatıldığında buton pasif hale getirilmeli ve "İşleminiz devam ediyor, lütfen bekleyin..." gibi bir uyarı gösterilmelidir. Sunucu tarafında her sipariş denemesi için benzersiz bir "işlem ID" (transaction ID) oluşturularak mükerrer işlemler engellenmelidir.
+    * **Sepeti Değiştirme İsteği:** Akış, sepeti gösterdikten sonra ya alışverişe devam etme ya da ödemeye geçme seçeneği sunuyor.
+        * **Edge Case:** Kullanıcı sepetteki bir ürünün miktarını artırmak/azaltmak veya bir ürünü sepetten tamamen çıkarmak isterse ne olacak? Bu adımlar şemada yer almıyor.
+        * **Çözüm:** Sepet sayfasında ürün miktarını düzenleme ve ürünü silme fonksiyonları mutlaka olmalıdır.
+
+    ### 2. Stok ve Ürün Yönetimi Edge Case'leri
+
+    * **Race Condition (Yarış Durumu):** Akışınızda iki kez stok kontrolü yapılması (`stok_kontrol` ve `stok_kontrol_2`) çok doğru bir yaklaşım. Ancak en kritik an, son adımdır.
+        * **Edge Case:** Stokta son 1 adet kalan bir ürünü, iki farklı kullanıcı aynı anda "Satın Al" butonuna basarsa ne olur? `stok_kontrol_2` adımını ikisi de aynı anda geçebilir ama ürün sadece bir kişiye satılabilir.
+        * **Çözüm:** "Satın Al" butonuna basıldığı anda, ödeme onayı gelene kadar o ürünün stoğu (örneğin 1 adet) çok kısa bir süreliğine "kilitlenmeli" veya "rezerve edilmeli"dir. Ödeme başarısız olursa veya kullanıcı işlemi iptal ederse kilit kaldırılmalıdır.
+    * **Dijital veya Stoksuz Ürünler:**
+        * **Edge Case:** Satılan ürün bir e-kitap, online kurs veya hizmet ise stok kontrolü nasıl çalışacak?
+        * **Çözüm:** Ürün veritabanında "stok takibi yapılsın mı?" (is_stock_tracked) gibi bir alan olmalıdır. Eğer ürün dijital ise stok kontrol adımları atlanmalıdır.
+
+    ### 3. Promosyonlar ve Kargo Edge Case'leri
+
+    * **İndirim Kodunun Sepete Etkisi:**
+        * **Edge Case 1:** Kullanıcı 210 TL'lik sepetiyle ücretsiz kargo hakkı kazandı. Sonra uyguladığı indirim kodu sepet tutarını 190 TL'ye düşürdü. Kargo tekrar ücretli hale gelmeli mi?
+        * **Edge Case 2:** Kullanıcı 60 TL'lik sepetiyle 50 TL'lik minimum sipariş limitini aştı. Ancak uyguladığı %20'lik indirim kodu tutarı 48 TL'ye düşürdü. Siparişe devam edebilmeli mi?
+        * **Çözüm:** Bu gibi durumlar için iş kuralları (business rules) net olarak belirlenmelidir. Genellikle, indirimler uygulandıktan sonraki **nihai tutara** göre kargo ve minimum sepet kuralları tekrar hesaplanır ve kullanıcıya bilgi verilir.
+    * **Geçersiz İndirim Kodları:** Şemanızda "indirim kodu geçersiz" durumu var.
+        * **Edge Case:** Kod neden geçersiz? Süresi mi dolmuş? Minimum sepet tutarına mı ulaşılamamış? Sadece belirli ürünlerde mi geçerli? Kullanıcıya genel bir "geçersiz kod" demek yerine "Bu kod 500 TL ve üzeri alışverişlerde geçerlidir" gibi spesifik bir geri bildirim vermek, kullanıcı deneyimini artırır.
+
+    ### 4. Ödeme ve Sistem Mimarisi Edge Case'leri
+
+    * **Ödeme Başarısız Ama Neden?** Şemanızda "Ödeme onayı gelmedi mi?" sorusuna "Hayır" cevabı kullanıcıyı tekrar sepete yönlendiriyor.
+        * **Edge Case:** Ödeme neden başarısız oldu? Yetersiz bakiye, yanlış kart bilgisi, banka onayı alınamadı, 3D Secure şifresi yanlış girildi, sahtekarlık şüphesi (fraud)...
+        * **Çözüm:** Ödeme sağlayıcı firmadan gelen hata kodunu (örn: "51 - Yetersiz Bakiye") kullanıcıya anlayacağı bir dilde göstermek ("Kartınızda yeterli bakiye bulunmamaktadır.") gerekir.
+    * **Atomik İşlemler (Atomic Transactions):** "bilgilendirme_mesaji_gonder" ve "urunleri_stoktan_kaldir" adımları ayrı ayrı gösterilmiş.
+        * **Edge Case:** Ödeme başarılı olduktan sonra stok düşürme işlemi veritabanı hatası nedeniyle başarısız olursa ne olur? Para alınmış olur ama ürün hala stokta görünür ve başkasına satılabilir.
+        * **Çözüm:** Siparişin oluşturulması, stokun düşülmesi ve ödemenin kaydedilmesi gibi kritik adımlar tek bir **"veritabanı transaction"** bloğu içinde yapılmalıdır. Bu sayede adımlardan herhangi biri başarısız olursa, önceki tüm adımlar otomatik olarak geri alınır (rollback). Böylece veri tutarlılığı korunur.
+    * **Farklı Ödeme Yöntemleri:** Şema sadece kartla ödemeyi (`odeme_yontemi_sec -> Evet`) ele alıyor.
+        * **Edge Case:** Kullanıcı Havale/EFT veya Kapıda Ödeme seçerse ne olacak? Havale/EFT için sipariş "ödeme bekleniyor" durumunda oluşturulmalı ve bir son ödeme tarihi verilmelidir. Kapıda ödeme için farklı bir akış izlenmelidir.
+
+    Bu edge case'ler, bir e-ticaret sistemini basit bir akıştan, sağlam ve güvenilir bir platforma dönüştüren detaylardır.

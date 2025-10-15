@@ -1,0 +1,71 @@
+digraph G{
+    start [shape=oval, label="Başla"]
+    kullanici_siteye_girdi [shape=rectangle label="Kullanıcı siteye girdi. Ürün sayfasını göster."]
+    sepete_ekle_tusuna_basildimi [shape=diamond label="Sepete ekle tuşuna basıldımı?"]
+    stok_kontrol [shape=diamond label="Üründen istenilen miktarda stok varmı?"]
+    giris_yap [shape=rectangle label="Kullanıcı Adı ve şifreyi al"]
+    girisi_onayla [shape=diamond label="Sunucudan giriş için onay geldimi?"]
+    sepeti_goster [shape=rectangle label="Sepeti göster"]
+    baska_islem_sepet [shape=diamond label="Ürününüz sepete eklendi. Başka ürünlere bakmak istermisiniz?"]
+    fiyat_test_50 [shape=diamond label="Sepet tutarı 50TL'yi aşıyormu?"]
+    fiyat_test_50_fail [shape=rectangle label="Sepet tutarı en az 50TL olmalı"]
+    kargo_ucreti_200 [shape=diamond label="Sepet tutarı 200TL'yi aşıyormu?"]
+    kargo_ucreti_bedava [shape=rectangle label="Kargo bedava"]
+    kargo_ucreti_40 [shape=rectangle label="fiyat = fiyat + kargo(40 TL)"]
+    indirim_kodu [shape=diamond label="İndirim Kodu uygulandımı?"]
+    indirim_kodu_dogrulama [shape=diamond label="Sunucudan indirim kodu doğrulandımı"]
+    indirim_kodu_uygula [shape=rectangle label="fiyat = fiyat - (fiyat* indirim yüzdesi)"]
+    indirim_kodu_yanlis [shape=rectangle label="İndirim kodu geçersiz"]
+    satin_al_tusuna_basildimi[shape=diamond label="Satın Al tuşuna basıldımı?"]
+    sepetteki_urunu_kaldirmak_istiyormu [shape=diamond label="Sepetteki Ürünü Kaldırmak istiyormu"]
+    sepetteki_urunu_kaldir [shape=rectangle label="Seçilen ürünü sepetten kaldır"]
+    kart_ve_adres_bilgilerini_al [shape=rectangle label="Adres ve kart bilgilerini al."]
+    odeme_yontemi_sec [shape=diamond label="Ödeme yöntemi kartmı?"]
+    stok_kontrol_2 [shape=diamond label="Ürünler hala stoktamı?"]
+    bilgileri_odeme_firmasina_gonder [shape=diamond label="Ödeme onayı geldimi?"]
+    bilgilendirme_mesaji_gonder [shape=rectangle label="Bilgilendirme mesajlarını gönder"]
+    urunleri_stoktan_kaldir [shape=rectangle label="Ürünleri stoktan sil"]
+    baska_urunlere_bakmak_istermisiniz [shape=diamond label="Başka ürünlere bakmak istermisiniz"]
+    havale_islemi_yap [shape=rectangle label="Havale/EFT ile parayı al"]
+    
+    
+    start -> kullanici_siteye_girdi
+    kullanici_siteye_girdi -> sepete_ekle_tusuna_basildimi
+    sepete_ekle_tusuna_basildimi -> stok_kontrol [label="Evet"]
+    stok_kontrol -> giris_yap [label="Evet"]
+    stok_kontrol -> kullanici_siteye_girdi [label="Hayır."]
+    giris_yap -> girisi_onayla
+    girisi_onayla -> sepeti_goster [label="Evet"]
+    girisi_onayla -> giris_yap [label="Hayır"]
+    baska_islem_sepet -> kullanici_siteye_girdi [label="Evet"]
+    sepeti_goster -> baska_islem_sepet
+    baska_islem_sepet -> fiyat_test_50 [label="Hayır"]
+    fiyat_test_50 -> fiyat_test_50_fail [label="Hayır"]
+    fiyat_test_50_fail -> sepeti_goster
+    fiyat_test_50 -> kargo_ucreti_200 [label="Evet"]
+    kargo_ucreti_200 -> kargo_ucreti_bedava [label="Evet"]
+    kargo_ucreti_200 -> kargo_ucreti_40 [label="Hayır"]
+    kargo_ucreti_40 -> indirim_kodu
+    kargo_ucreti_bedava -> indirim_kodu
+    indirim_kodu -> indirim_kodu_dogrulama [label="Evet"]
+    indirim_kodu_dogrulama -> indirim_kodu_uygula [label="Evet"]
+    indirim_kodu_dogrulama -> indirim_kodu_yanlis [label="Hayır"]
+    indirim_kodu_yanlis -> sepeti_goster
+    indirim_kodu_uygula -> sepetteki_urunu_kaldirmak_istiyormu
+    sepetteki_urunu_kaldirmak_istiyormu -> sepetteki_urunu_kaldir [label="Evet"]
+    sepetteki_urunu_kaldirmak_istiyormu -> satin_al_tusuna_basildimi [label="Hayır"]
+    sepetteki_urunu_kaldir -> satin_al_tusuna_basildimi
+    indirim_kodu -> sepetteki_urunu_kaldirmak_istiyormu [label="Hayır"]
+    satin_al_tusuna_basildimi -> stok_kontrol_2 [label="Evet"]
+    stok_kontrol_2 -> sepeti_goster [label="Hayır"]
+    stok_kontrol_2 -> odeme_yontemi_sec [label="Evet"]
+    odeme_yontemi_sec -> kart_ve_adres_bilgilerini_al [label="Evet"]
+    kart_ve_adres_bilgilerini_al -> bilgileri_odeme_firmasina_gonder
+    bilgileri_odeme_firmasina_gonder -> sepeti_goster [label="Hayır"]
+    bilgileri_odeme_firmasina_gonder -> urunleri_stoktan_kaldir [label="Evet"]
+    urunleri_stoktan_kaldir -> bilgilendirme_mesaji_gonder -> baska_urunlere_bakmak_istermisiniz
+    baska_urunlere_bakmak_istermisiniz -> kullanici_siteye_girdi [label="Evet"]
+    baska_urunlere_bakmak_istermisiniz -> Bitir
+    odeme_yontemi_sec -> havale_islemi_yap [label="Hayır"]
+    havale_islemi_yap -> bilgileri_odeme_firmasina_gonder
+}
